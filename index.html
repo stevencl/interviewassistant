@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Speakup</title>
+
+  <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.20.15/system.js"></script>
+  <script>
+    System.config({
+      baseURL: 'client',
+      packages: { './': { defaultExtension: 'js' } },
+      map: {
+        'react': 'https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.min.js',
+        'react-dom': 'https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.min.js'
+      }
+    });
+
+    System.import('main');
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.3/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/client/main.css" />
+
+</head>
+
+<body>
+</body>
+
+</html>
