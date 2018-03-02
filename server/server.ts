@@ -28,9 +28,16 @@ function sendTextToLUIS(text: string | undefined) {
 	}
 	return response;
 }
+function generateGUID() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+
 
 const app = express();
-ws(app);
+const expressWs = ws(app);
 
 app.use(express.static(__dirname + '/..'));
 
@@ -64,6 +71,28 @@ app.ws('/interviewer', (ws, req) => {
 		console.log("Database connection was not created properly");
 		console.log("error opening", err);
 	});
+});
+
+app.ws('/handshake', (ws, req) =>{
+	const id = generateGUID();
+	app.ws('/' + id, (ws, req) =>{
+		ws.on('message', function(t){
+			var aWss = expressWs.getWss('/' + id);
+			const data = JSON.parse(t);
+			console.log(data);
+			if(!data.interviewer){
+				aWss.clients.forEach(function (c) {
+					console.log("hi:" + t);
+					ws.send(t);
+				});
+			}
+		});
+	});
+	ws.send(id);
+});
+
+app.ws('/interviewee', (ws, req) =>{
+
 });
 
 app.listen(8080, () => {

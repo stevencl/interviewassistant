@@ -18,6 +18,7 @@ interface SpeakerState {
 }
 
 interface utterance {
+  name: string,
   text: string;
   duration: number;
   startTime: string;
@@ -47,6 +48,10 @@ class StudyDetailsForm extends React.Component<StudyDetailsFormProps> {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  isNotEmpty(val){
+    return (val === undefined || val == null || val.length <= 0) ? false : true;
   }
 
   handleChange(event) {
@@ -173,7 +178,8 @@ type AppState = {
   width: number,
   height: number,
   name: string,
-  interviewID: string
+  interviewID: string,
+  interviewer: boolean
 };
 
 class App extends React.Component<AppProps, AppState> {
@@ -189,14 +195,24 @@ class App extends React.Component<AppProps, AppState> {
       width: 0,
       height: 0,
       name: '',
-      interviewID: ''
+      interviewID: '',
+      interviewer: false
     };
 
     this.studyDetailsCallback = this.studyDetailsCallback.bind(this);
   }
 
+  isNotEmpty(val){
+    return (val === undefined || val == null || val.length <= 0) ? false : true;
+  }
+
   studyDetailsCallback(name: string, interviewID: string) {
-    this.setState({...this.state, name: name, interviewID: interviewID});
+    if(this.isNotEmpty(name)){
+      this.setState({...this.state, name: name});
+    }
+    if(this.isNotEmpty(interviewID)){
+      this.setState({...this.state, interviewID: interviewID});
+    }
   }
 
   componentDidMount() {
@@ -269,7 +285,15 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   private startRecording(onSpeechEnded: Event<SpeechPausedResult>) {
-    const socket = new WebSocket('ws://localhost:8080/interviewer');
+    console.log(this.state);
+    var websocketName = 'ws://localhost:8080/' + this.state.interviewID;
+    // if(interviewID == null){
+    //   websocketName = 'ws://localhost:8080/' + this.state.interviewID;
+    // } else{
+    //   websocketName = 'ws://localhost:8080/' + interviewID;
+    // }
+    console.log('websocketname: ' + websocketName);
+    const socket = new WebSocket(websocketName);
     const recorder = RecordRTC(this.props.microphone.stream, {
       type: 'audio',
       recorderType: StereoAudioRecorder,
@@ -288,12 +312,10 @@ class App extends React.Component<AppProps, AppState> {
         const startTimeText = startTime.toString();
         
         const endTimeText = new Date().getTime().toString();
-        var newUtterances = this.state.utterances.slice();
         if (result.text != "") {
           let tempText = result.text;
-          newUtterances.push({ text: tempText, duration: durationSpeech, startTime: 'sometime' });
-          this.setState({ utterances: [...this.state.utterances, { text: tempText, duration: durationSpeech, startTime: 'sometime' }]});
-          socket.send(JSON.stringify({ durationSpeech, tempText, startTimeText }));
+          this.setState({ utterances: [...this.state.utterances, { name: this.state.name, text: tempText, duration: durationSpeech, startTime: 'sometime' }]});
+          socket.send(JSON.stringify({ name: this.state.name, duration: durationSpeech, text: tempText, startTime: startTimeText, interviewer: this.state.interviewer}));
         }
       });
 
@@ -302,13 +324,18 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     socket.onmessage = (e) => {
-      const text = JSON.parse(e.data);
+      //const text = JSON.parse(e.data);
+      console.log("MESSAGE RECEIVED: " + this.state.interviewer);
+      if(this.state.interviewer){
+        const newUtterance = JSON.parse(e.data);
+        this.setState({ utterances: [...this.state.utterances, { name: newUtterance.name, text: newUtterance.text, duration: newUtterance.duration, startTime: newUtterance.startTime }]});
+      }
       //Currently leading question response is placed over the subtitle
       //Can we set the app up so that the leading question response is attached to the last utterance and is displayed underneath?
       //Or set up another app state, responses. The 
-      let lastUtterance = this.state.utterances.pop(); //Does this change the state? I don't think so
+      //let lastUtterance = this.state.utterances.pop(); //Does this change the state? I don't think so
 
-      console.log("Received a response - " + lastUtterance);
+      //console.log("Received a response - " + lastUtterance);
       //lastUtterance.response = text;
       //this.setState({...this.state.})
       //this.setState({ ...this.state, leadingQuestion: text });
@@ -333,6 +360,15 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
+  private requestHandshake() {
+    const socket = new WebSocket('ws://localhost:8080/handshake');
+    socket.onmessage = (e) => {
+      this.setState({...this.state, name: name, interviewID: e.data, interviewer: true});
+      console.log(this.state);
+      console.log(e);
+    }
+  }
+
   render() {
     const utterances = this.state.utterances;
 
@@ -352,6 +388,7 @@ class App extends React.Component<AppProps, AppState> {
         </div>
       </section>
       <section className="section">
+      <StudyDetailsForm onStartStudy={() => this.requestHandshake()} callback={this.studyDetailsCallback}/>
       <StudyDetailsForm onStartStudy={() => this.startTheRecording()} callback={this.studyDetailsCallback}/>
       </section>
 
