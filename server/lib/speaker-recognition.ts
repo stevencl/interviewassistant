@@ -1,5 +1,5 @@
 import * as request from 'request';
-import { unknownId } from "../server";
+// import { unknownId } from "../server";
 let subscriptionKey;
 try {
 	subscriptionKey = require('../../devenv.json').srKey;
@@ -45,7 +45,7 @@ export async function identifySpeaker(audio: Buffer, identificationProfileIds: s
 			}
 
 			if (result.processingResult.confidence === 'Low') {
-				return res(unknownId);
+				// return res(unknownId);
 			}
 
 			return res(result.processingResult.identifiedProfileId);

@@ -35,12 +35,38 @@ type SpectrumAnalyzerProps = {
   height: number
 };
 
-type StudyDetailsFormProps = {
-  onStartStudy: () => void,
+type InterviewerHandshakeFormProps = {
+  onStartHandshake: () => void
+}
+
+class InterviewerHandshakeForm extends React.Component<InterviewerHandshakeFormProps> {
+  constructor(props) {
+    super(props);
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleSubmit(event) {
+    //Call a method from the main app which will start the recorder:
+    this.props.onStartHandshake();
+    event.preventDefault();
+  }
+
+  render() {
+    return (
+      <form className="flex-container" onSubmit={this.handleSubmit}>
+        <input className="flex-item" type="submit" value="Handshake" />
+      </form>
+    );
+  }
+}
+
+type InterviewerStartFormProps = {
+  onStartInterview: () => void,
   callback: (name: string, interviewID: string) => void
 }
 
-class StudyDetailsForm extends React.Component<StudyDetailsFormProps> {
+class InterviewerStartForm extends React.Component<InterviewerStartFormProps> {
   constructor(props) {
     super(props);
     this.state = {name: '',
@@ -61,7 +87,7 @@ class StudyDetailsForm extends React.Component<StudyDetailsFormProps> {
   handleSubmit(event) {
     //Call a method from the main app which will start the recorder:
     this.props.callback(this.state.name, this.state.interviewID);
-    this.props.onStartStudy();
+    this.props.onStartInterview();
     event.preventDefault();
   }
 
@@ -80,7 +106,7 @@ class StudyDetailsForm extends React.Component<StudyDetailsFormProps> {
           <input name ="interviewID" type="text" value={this.state.interviewID} onChange={this.handleChange} />
         </label>
         </div>
-        <input className="flex-item" type="submit" value="Start interview" />
+        <input className="flex-item" type="submit" value="Start Interview" />
       </form>
     );
   }
@@ -263,7 +289,7 @@ class App extends React.Component<AppProps, AppState> {
 
           this.setState({ ...this.state, subtitles: text });
         });
-        
+
         this.startRecording(speechService.onSpeechPaused);
       });
 
@@ -286,11 +312,15 @@ class App extends React.Component<AppProps, AppState> {
 
   private startRecording(onSpeechEnded: Event<SpeechPausedResult>) {
     console.log(this.state);
-    var websocketName = 'ws://localhost:8080/' + this.state.interviewID;
+    // TODO: Kelley, figure out how to get this URL param working
+    // It's current logging this:
+    // websocketname: ws://localhost:3000/a3f868b5-788f-419c-9619-1cf235b54504
+    // Which means it's trying to make the ID into a route, not a URL param??
+    var websocketName = 'ws://localhost:3000/?sessionId=' + this.state.interviewID + '&interviewer=' + this.state.interviewer;
     // if(interviewID == null){
-    //   websocketName = 'ws://localhost:8080/' + this.state.interviewID;
+    //   websocketName = 'ws://localhost:3000/' + this.state.interviewID;
     // } else{
-    //   websocketName = 'ws://localhost:8080/' + interviewID;
+    //   websocketName = 'ws://localhost:3000/' + interviewID;
     // }
     console.log('websocketname: ' + websocketName);
     const socket = new WebSocket(websocketName);
@@ -306,11 +336,11 @@ class App extends React.Component<AppProps, AppState> {
     recorder.startRecording();
 
     onSpeechEnded(result => {
-      const durationSpeech = (result.duration / 1000000000) * 100; //duration is in 
+      const durationSpeech = (result.duration / 1000000000) * 100; //duration is in
 
       recorder.stopRecording(() => {
         const startTimeText = startTime.toString();
-        
+
         const endTimeText = new Date().getTime().toString();
         if (result.text != "") {
           let tempText = result.text;
@@ -332,7 +362,7 @@ class App extends React.Component<AppProps, AppState> {
       }
       //Currently leading question response is placed over the subtitle
       //Can we set the app up so that the leading question response is attached to the last utterance and is displayed underneath?
-      //Or set up another app state, responses. The 
+      //Or set up another app state, responses. The
       //let lastUtterance = this.state.utterances.pop(); //Does this change the state? I don't think so
 
       //console.log("Received a response - " + lastUtterance);
@@ -347,7 +377,7 @@ class App extends React.Component<AppProps, AppState> {
       // The memory "waste" is not an issue compared to the errors you might face using non-standard state modifications.
       // Alternative syntax
       // You can use concat to get a cleaner syntax since it returns a new array:
-      // this.setState({ 
+      // this.setState({
       //   arrayvar: this.state.arrayvar.concat([newelement])
       // })
       // In ES6 you can use the Spread Operator:
@@ -361,12 +391,15 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   private requestHandshake() {
-    const socket = new WebSocket('ws://localhost:8080/handshake');
+    console.log("Creating session");
+    const socket = new WebSocket('ws://localhost:3000/createSession');
     socket.onmessage = (e) => {
-      this.setState({...this.state, name: name, interviewID: e.data, interviewer: true});
+      console.log('received message');
+      this.setState({...this.state, interviewID: e.data, interviewer: true});
       console.log(this.state);
       console.log(e);
     }
+    this.startTheRecording();
   }
 
   render() {
@@ -388,8 +421,8 @@ class App extends React.Component<AppProps, AppState> {
         </div>
       </section>
       <section className="section">
-      <StudyDetailsForm onStartStudy={() => this.requestHandshake()} callback={this.studyDetailsCallback}/>
-      <StudyDetailsForm onStartStudy={() => this.startTheRecording()} callback={this.studyDetailsCallback}/>
+      <InterviewerStartForm onStartInterview={() => this.requestHandshake()} callback={this.studyDetailsCallback}/>
+      <InterviewerStartForm onStartInterview={() => this.startTheRecording()} callback={this.studyDetailsCallback}/>
       </section>
 
       <section className="section">
@@ -411,7 +444,7 @@ class App extends React.Component<AppProps, AppState> {
             </thead>
             <tbody>
               {
-                //Send 
+                //Send
                 utterances.map(u => {
 
                   return [
