@@ -7,9 +7,9 @@ function RecognizerSetup(subscriptionKey): Speech.Recognizer {
 			new Speech.Context(
 				new Speech.OS(navigator.userAgent, "Browser", null),
 				new Speech.Device("SpeechSample", "SpeechSample", "1.0.00000"))),
-		Speech.RecognitionMode.Interactive,
-		"en-gb",
-		Speech.SpeechResultFormat.Detailed,
+		Speech.RecognitionMode.Conversation,
+		"en-us",
+		Speech.SpeechResultFormat.Simple,
 	);
 
 	// Alternatively use SDK.CognitiveTokenAuthentication(fetchCallback, fetchOnExpiryCallback) for token auth
@@ -80,12 +80,18 @@ export class SpeechToTextService {
 			}
 
 			else if (event instanceof Speech.SpeechSimplePhraseEvent) {
-				//Seems like this event never fires
-				// console.log('SimplePhraseEvent');
-				// console.log(JSON.stringify(event.Result)); 
-				// if (event.Result.DisplayText) {
-				// 	this._onText.fire(event.Result.DisplayText);
-				// }
+				//This event fires when result type is set to simple
+				console.log('SimplePhraseEvent');
+				console.log(JSON.stringify(event.Result)); 
+				if (event.Result.DisplayText) {
+					this._onText.fire(event.Result.DisplayText);
+					this.lastText = event.Result.DisplayText;
+					this.lastOffset = event.Result.Offset;
+					this.lastDuration = event.Result.Duration;
+					let speechPausedResult = new SpeechPausedResult(this.lastText, this.lastOffset, this.lastDuration);
+					//this._onSpeechPaused.fire(this.lastText);
+					this._onSpeechPaused.fire(speechPausedResult);
+				}
 			}
 
 			else if (event instanceof Speech.SpeechDetailedPhraseEvent) {
