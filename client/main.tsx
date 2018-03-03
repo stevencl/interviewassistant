@@ -233,12 +233,15 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   studyDetailsCallback(name: string, interviewID: string) {
+    console.log("callback: " + name);
     if(this.isNotEmpty(name)){
-      this.setState({...this.state, name: name});
+      console.log(name);
+      this.setState({name: name});
     }
     if(this.isNotEmpty(interviewID)){
-      this.setState({...this.state, interviewID: interviewID});
+      this.setState({interviewID: interviewID});
     }
+    console.log("hi" + this.state.name);
   }
 
   componentDidMount() {
@@ -345,6 +348,7 @@ class App extends React.Component<AppProps, AppState> {
         if (result.text != "") {
           let tempText = result.text;
           this.setState({ utterances: [...this.state.utterances, { name: this.state.name, text: tempText, duration: durationSpeech, startTime: 'sometime' }]});
+          console.log(this.state.name);
           socket.send(JSON.stringify({ name: this.state.name, duration: durationSpeech, text: tempText, startTime: startTimeText, interviewer: this.state.interviewer}));
         }
       });
@@ -356,9 +360,12 @@ class App extends React.Component<AppProps, AppState> {
     socket.onmessage = (e) => {
       //const text = JSON.parse(e.data);
       console.log("MESSAGE RECEIVED: " + this.state.interviewer);
-      if(this.state.interviewer){
-        const newUtterance = JSON.parse(e.data);
-        this.setState({ utterances: [...this.state.utterances, { name: newUtterance.name, text: newUtterance.text, duration: newUtterance.duration, startTime: newUtterance.startTime }]});
+      var data = JSON.parse(e.data);
+      console.log(data);
+      if(this.state.interviewer && data.messageType === 'transcript'){
+        this.setState({ utterances: [...this.state.utterances, { name: data.name, text: data.text, duration: data.duration, startTime: data.startTime }]});
+      } else if(data.messageType === 'LUIS'){
+        console.log(data.message);
       }
       //Currently leading question response is placed over the subtitle
       //Can we set the app up so that the leading question response is attached to the last utterance and is displayed underneath?
@@ -450,7 +457,7 @@ class App extends React.Component<AppProps, AppState> {
                   return [
                     <tr>
                       <th>
-                        {this.state.name}
+                        {u.name}
                       </th>
                       <th>
                       {u.text}

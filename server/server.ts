@@ -53,7 +53,7 @@ function openDBConnection(){
 	});
 }
 
-function handleTextAnalytics(msg){
+function handleTextAnalytics(ws, msg){
 	let duration: number | undefined = undefined;
 	let text: string | undefined = undefined;
 	let startTimeText: string | undefined = undefined;
@@ -68,7 +68,9 @@ function handleTextAnalytics(msg){
 	//insertPhrase(db, startTimeText, duration, text);
 	if (response != "") {
 		console.log(response);
-		//ws.send(JSON.stringify(response));
+		var message = JSON.parse(msg);
+		message.messageType = 'LUIS';
+		ws.send(JSON.stringify(message));
 	}
 }
 
@@ -88,14 +90,11 @@ app.ws('/createSession', (interviewerWs, req) =>{
 });
 
 app.ws('/', (ws, req) => {
-	console.log(req.url);
 	const parameters = URL.parse(req.url, true);
-	console.log(parameters);
 	const sessionId = parameters["query"]["sessionId"];
 	const interviewer = parameters["query"]["interviewer"];
-	console.log("interviewer: " + interviewer);
-	console.log('a client is trying to connect');
-	console.log(sessionId);
+	console.log('A client is trying to connect with sessionID: ' + sessionId)
+	console.log('interviewer: ' + interviewer);
 
 	if (sessionId == null) {
 		// Not trying to join an existing session
@@ -117,11 +116,13 @@ app.ws('/', (ws, req) => {
 
 			for (const session of sessions) {
 				if (session.interviewerId == interviewerId) {
-					console.log('forwarding message from interviewer to interviewee if interviewee has connected');
 					if(session.intervieweeId != null){
-						clients[session.intervieweeId].send(msg);
+						console.log('forwarding message from interviewer to interviewee if interviewee has connected');
+						var message = JSON.parse(msg);
+						message.messageType = 'transcript';
+						clients[session.intervieweeId].send(JSON.stringify(message));
 					}
-					handleTextAnalytics(msg);
+					handleTextAnalytics(ws, msg);
 				}
 			}
 		});
@@ -147,7 +148,9 @@ app.ws('/', (ws, req) => {
 			for (const session of sessions) {
 				if (session.intervieweeId == intervieweeId) {
 					console.log('forwarding message from interviewee to interviewer');
-					clients[session.interviewerId].send(msg);
+					var message = JSON.parse(msg);
+					message.messageType = 'transcript';
+					clients[session.interviewerId].send(JSON.stringify(message));
 				}
 			}
 		});
