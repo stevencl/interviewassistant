@@ -43,14 +43,8 @@ const expressWs = ws(app);
 app.use(express.static(__dirname + '/..'));
 
 function openDBConnection(){
-	var password = "";
-	fetch('/devenv.json')
-      .then(response => response.json())
-      .then(({ mongoPassword }) => {
-        password = encodeURIComponent(mongoPassword);
-      });
 	var mongoClient = require("mongodb").MongoClient;
-	//var password = encodeURIComponent("RFtVpFkJ3uR4MTptTTrIvOtHKLOVSRhxSqD51mEMvUnbL3FxHSRtEkqoRAQZ3i3iDpV3qDkOlf3G4rVI5a9jBw==");
+	var password = encodeURIComponent("RFtVpFkJ3uR4MTptTTrIvOtHKLOVSRhxSqD51mEMvUnbL3FxHSRtEkqoRAQZ3i3iDpV3qDkOlf3G4rVI5a9jBw==");
 	mongoClient.connect("mongodb://interviewtranscript:" + password + "@interviewtranscript.documents.azure.com:10255/?ssl=true")
 	.then(function (database) {})
 	.catch(function (err) {
@@ -87,7 +81,6 @@ app.ws('/createSession', (interviewerWs, req) =>{
 	const sessionId = generateGUID();
 	const interviewerId = generateGUID();
 	const session = new Session(sessionId, interviewerId);
-	console.log
 	sessions.push(new Session(sessionId, interviewerId));
 
 	// Send the interviewer the session ID to give to the interviewee
