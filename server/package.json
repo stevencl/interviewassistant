@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "main": "pathToMain",
   "dependencies": {
+    "@types/request": "^2.47.0",
+    "dotenv": "^5.0.1",
     "express": "^4.15.3",
-    "express-ws": "^3.0.0"
+    "express-ws": "^3.0.0",
+    "request": "^2.83.0"
   },
   "devDependencies": {
-    "@types/node": "^8.0.10",
-    "@types/request": "^0.0.45",
-    "request": "^2.81.0"
+    "@types/node": "^8.0.10"
   }
 }

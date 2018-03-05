@@ -1,8 +1,7 @@
 {
-  "name": "speakup",
+  "name": "bcc",
   "version": "1.0.0",
-  "description": "The ultimate standup app",
-  "main": "index.js",
+  "description": "bcc",
   "scripts": {
     "postinstall": "cd client && npm i && cd ../server && npm i",
     "compile-client": "cd client && tsc",
@@ -26,14 +25,7 @@
   "homepage": "https://github.com/joaomoreno/speakup#readme",
   "devDependencies": {
     "concurrently": "^3.5.0",
-    "http-server": "^0.10.0",
     "nodemon": "^1.11.0",
-    "typescript": "^2.4.1"
-  },
-  "dependencies": {
-    "dotenv": "^5.0.0",
-    "mongodb": "^3.0.2",
-    "querystring": "^0.2.0",
-    "request": "^2.83.0"
+    "typescript": "^2.7.2"
   }
 }
