@@ -1,9 +1,40 @@
 {
-  "name": "speakup-client",
+  "name": "speakup",
   "version": "1.0.0",
-  "main": "pathToMain",
+  "description": "The ultimate standup app",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "cd client && npm i && cd ../server && npm i",
+    "compile-client": "cd client && tsc",
+    "compile-server": "cd server && tsc",
+    "compile": "npm run compile-client && npm run compile-server",
+    "dev": "concurrently -n client,server,web -p name \"cd client && tsc --watch\" \"cd server && tsc --watch\" \"npm run web\"",
+    "web": "nodemon server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joaomoreno/speakup.git"
+  },
+  "keywords": [
+    "standup"
+  ],
+  "author": "Microsoft",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joaomoreno/speakup/issues"
+  },
+  "homepage": "https://github.com/joaomoreno/speakup#readme",
   "devDependencies": {
-    "@types/react": "^15.0.38",
-    "@types/react-dom": "^15.5.1"
+    "concurrently": "^3.5.0",
+    "http-server": "^0.10.0",
+    "nodemon": "^1.11.0",
+    "typescript": "^2.4.1",
+    "react-router-dom": "^4.2.2"
+  },
+  "dependencies": {
+    "dotenv": "^5.0.0",
+    "mongodb": "^3.0.2",
+    "querystring": "^0.2.0",
+    "request": "^2.83.0"
   }
 }
