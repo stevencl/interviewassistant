@@ -74,105 +74,84 @@ function handleTextAnalytics(ws, msg){
 	}
 }
 
-const sessions: Session[] = [];
+const sessions: { [sessionId: string]: Session } = {};
 const clients: { [clientId: string]: WebSocket } = {};
 
+// Interviewer connects to this websocket to establish the session and it is also used to send messages
 app.ws('/createSession', (interviewerWs, req) =>{
 	const sessionId = generateGUID();
 	const interviewerId = generateGUID();
 	const session = new Session(sessionId, interviewerId);
-	sessions.push(new Session(sessionId, interviewerId));
+	sessions[sessionId] = session;
 
 	// Send the interviewer the session ID to give to the interviewee
 	console.log('sending interviewer the session id: ' + sessionId);
 	interviewerWs.send(sessionId);
+	
+	// Add interviewer WS to clients
+	clients[interviewerId] = interviewerWs;
+
+	interviewerWs.on('message', msg => {
+		console.log('Received a message from interviewer', msg);
+		// Don't need to send anything to the interviewee
+
+		// let intervieweeId: string | null = null;
+		// Get interviewee ID from session
+		// for (const id of Object.keys(sessions)) {
+		// 	if (sessions[id].interviewerId == interviewerId) {
+		// 		intervieweeId = sessions[id].intervieweeId;
+		// 	}
+		// }
+
+		// if (intervieweeId != null) {
+		// 	console.log('forwarding message from interviewer to interviewee if interviewee has connected');
+		// 	const message = JSON.parse(msg);
+		// 	message.messageType = 'transcript';
+		// 	clients[intervieweeId].send(JSON.stringify(message));
+		// }
+		handleTextAnalytics(interviewerWs, msg);
+	});
 });
 
+// Interviewee connects to this to connect to an existing session and it is also used to send messages
 app.ws('/', (ws, req) => {
 	const parameters = URL.parse(req.url, true);
-	const sessionId = parameters["query"]["sessionId"];
-	const interviewer = parameters["query"]["interviewer"];
+
+	if (parameters == null || parameters["query"] == null) {
+		console.log('Invalid parameters, returning');
+		return; 
+	}
+
+	const sessionId = parameters["query"]!["sessionId"];
 	console.log('A client is trying to connect with sessionID: ' + sessionId)
-	console.log('interviewer: ' + interviewer);
 
 	if (sessionId == null) {
 		// Not trying to join an existing session
 		return;
 	}
 
-	if(interviewer === 'true') {
-		let interviewerId: string | null = null;
-		for (let i=0; i < sessions.length; ++i) {
-			if (sessions[i].sessionId === sessionId) {
-				console.log('found matching session for client: ' + sessionId);
-				clients[sessions[i].interviewerId] = ws;
-				interviewerId = sessions[i].interviewerId;
-			}
-		}
-		console.log("interviewer ws setup");
-		ws.on('message', msg => {
-			console.log('received a message from interviewer', msg);
-
-			for (const session of sessions) {
-				if (session.interviewerId == interviewerId) {
-					if(session.intervieweeId != null){
-						console.log('forwarding message from interviewer to interviewee if interviewee has connected');
-						var message = JSON.parse(msg);
-						message.messageType = 'transcript';
-						clients[session.intervieweeId].send(JSON.stringify(message));
-					}
-					handleTextAnalytics(ws, msg);
-				}
-			}
-		});
-	} else {
-		let intervieweeId: string | null = null;
-		console.log("hi");
-		for (let i=0; i < sessions.length; ++i) {
-			if (sessions[i].sessionId === sessionId) {
-				console.log('found matching session for client: ' + sessionId);
-
-				intervieweeId = generateGUID();
-				sessions[i].intervieweeId = intervieweeId;
-				clients[intervieweeId] = ws;
-			}
-		}
-			
-		if (intervieweeId == null) {
-			return;
-		}
-		ws.on('message', msg => {
-			console.log('received a message from interviewee', msg);
-	
-			for (const session of sessions) {
-				if (session.intervieweeId == intervieweeId) {
-					console.log('forwarding message from interviewee to interviewer');
-					var message = JSON.parse(msg);
-					message.messageType = 'transcript';
-					clients[session.interviewerId].send(JSON.stringify(message));
-				}
-			}
-		});
+	// Check whether session ID corresponds to an existing session
+	if (!sessions[sessionId]) {
+		console.log('Not a valid session ID');
+		return;
 	}
-});
 
-// app.ws.on('message', (ws, req) => {
-// 	var aWss = expressWs.getWss('/' + sessionId);
-// 	const data = JSON.parse(d);
+	const session: Session = sessions[sessionId];
+	console.log('found matching session for client: ' + sessionId);
 
-// 	console.log('Received a message from the client:');
-// 	console.log(data);
+	// Generate interviewee ID, update session state with it and keep track of interviewee in clients
+	const intervieweeId = generateGUID();
+	sessions[sessionId].intervieweeId = intervieweeId;
+	clients[intervieweeId] = ws;
+		
+	ws.on('message', (msg) => {
+		console.log('received a message from interviewee', msg);
+		console.log('forwarding message from interviewee to interviewer');
 
-// 	if(!data.interviewer) {
-// 		aWss.clients.forEach(function (c) {
-// 			console.log("hi:" + d);
-// 			ws.send(d);
-// 		});
-// 	}
-// });
-
-app.ws('/interviewee', (ws, req) =>{
-
+		const message = JSON.parse(msg);
+		message.messageType = 'transcript';
+		clients[session.interviewerId].send(JSON.stringify(message));
+	});
 });
 
 const PORT = 3000;
@@ -183,6 +162,7 @@ app.listen(PORT, () => {
 
 class Session {
 	public sessionId: string;
+	// Note: only 1 interviewer and 1 interviewee per session
 	public interviewerId: string;
 	public intervieweeId: string;
 

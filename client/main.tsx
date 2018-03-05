@@ -1,10 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Home from './Home/home';
-import {Event, Emitter } from './util';
+import Home from './Components/Home/home';
 import {Route, NavLink, HashRouter} from 'react-router-dom';
-import { Interviewer, InterviewerHandshakeForm, InterviewerStartForm, utterance} from './Interviewer/interviewer'
-
+import { Interviewer } from './Components/Interviewer/interviewer'
 
 export type AppProps = {
 };
@@ -20,7 +18,6 @@ export type AppState = {
   interviewID: string,
   interviewer: boolean
 };
-
 
 class App extends React.Component {
 
@@ -47,5 +44,4 @@ class App extends React.Component {
 
 export default App;
 
-console.log('Rendering App')
 ReactDOM.render(<App />, document.getElementById('root'));

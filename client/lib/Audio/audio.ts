@@ -1,4 +1,4 @@
-import { Event, Emitter } from './util';
+import { Event, Emitter } from '../speechToText/util';
 
 export class Microphone {
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Event, Emitter } from '../util';
-import { Microphone } from '../audio';
-import { SpeechToTextService, SpeechPausedResult } from '../speechService';
+import { Event, Emitter } from '../../lib/speechToText/util';
+import { Microphone } from '../../Audio/audio';
+import { SpeechToTextService, SpeechPausedResult } from '../../lib/speechToText/speechService';
 
 export class SpectrumAnalyzer extends React.Component<SpectrumAnalyzerProps> {
 
