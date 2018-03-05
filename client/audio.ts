@@ -34,4 +34,10 @@ export class Microphone {
     this.analyser.getFloatFrequencyData(this._frequencyBuffer);
     return this._frequencyBuffer;
   }
+
+  stop(): void {
+    console.log('Microphone stopped.')
+    this._stream.getAudioTracks().forEach(function(track) { track.stop(); });
+  }
+
 }
