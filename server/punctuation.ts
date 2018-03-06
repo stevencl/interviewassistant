@@ -2,10 +2,10 @@ require('dotenv').config();
 
 import * as request from 'request';
 
-export function addPunctuation(utterance): string {
+export function addPunctuation(utterance, callback) {
 
-    var postBody = [{"Text":"hello how are you doing i am fine thanks"}];
-    
+    var postBody = [{ "Text": utterance }];
+
     var options = {
         method: 'post',
         body: postBody, // Javascript object
@@ -13,12 +13,12 @@ export function addPunctuation(utterance): string {
         url: "https://dev.microsofttranslator.com/translate?api-version=3.0&from=en&to=en&options=TrueText",
         headers: {
             "Ocp-Apim-Subscription-Key": process.env.TRANSLATOR_KEY,
-            "Content-Type":"application/json",
-            "X-ClientTraceId":"A14C9DB9-0DED-48D7-8BBE-C517A1A8DBB0"
+            "Content-Type": "application/json",
+            "X-ClientTraceId": "A14C9DB9-0DED-48D7-8BBE-C517A1A8DBB0"
         }
-      }
+    }
 
-      let translateResponse = "";
+    let translateResponse = "";
 
     request.post(options,
         function (err,
@@ -26,15 +26,11 @@ export function addPunctuation(utterance): string {
             if (err)
                 console.log(err);
             else {
-                console.log(body);
-                var data = JSON.parse(body);
-
-                if (data.translations.length > 0) {
-                    data.translations.forEach(translation => {
-                        console.log(`Translation: ${translation.text}`);
-                    });
+                console.log("Got a response from translator: ")
+                console.log(body[0].trueText.text);
+                translateResponse = body[0].trueText.text;
                 }
-            }
-        });
-    return translateResponse;
+                return callback(translateResponse);
+            });
+
 }
