@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as ws from 'express-ws';
 import * as luis from './luis';
+import * as punctuation from './punctuation';
 import * as URL from 'url';
 
 function insertPhrase(db, startTime, duration, phrase: string | undefined) {
@@ -115,15 +116,31 @@ function handleTextAnalytics(ws, msg){
 	startTimeText = parsedMsg.startTimeText;
 	text = parsedMsg.text;
 	//Send message to LUIS service
-	const response = sendTextToLUIS(text);
-	console.log("received " + response.toString());
-	//const msg1 = "Hello. You asked a leading question: " + text;
-	//insertPhrase(db, startTimeText, duration, text);
+	punctuation.addPunctuation(text, (punctuatedText) => {
+		console.log("Received " + punctuatedText + "from addPunct");
+		punctuatedText.split(/[".?;]+/).forEach(sentence => {
+			console.log("Split: " + sentence);
+			const response = sendTextToLUIS(sentence);
+			//insertPhrase(db, startTimeText, duration, text);
+			if (response != "") {
+				//console.log(response);
+				const luisResponse = JSON.parse(response);
+				// if (luisResponse.intents != null){
+				// 	const primaryThreshold = 0.5;
+				// 	const secondaryThreshold = 0.4;
+				// 	for (const intent in luisResponse.intents){
+						
+				// 	}
+				// }
+				var message = JSON.parse(msg);
+				message.messageType = 'LUIS';
+				ws.send(JSON.stringify(message));
+			}
+		});
+	});
+	//Now split the punctuated text into each phrase
 
-	const responses = null; //Add punctuation handler here.
-	const luisResponses = EvaluateLUISResponse(responses);
-
-	ws.send(JSON.stringify({messageType: 'LUIS', messages: luisResponses}));
+	
 }
 
 const sessions: { [sessionId: string]: Session } = {};
