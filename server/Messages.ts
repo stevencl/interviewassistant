@@ -11,12 +11,12 @@ export interface IUtteranceContent {
     text: string;
     duration: number;
     startTime: string;
-    luisResponse: LuisResponse
+    luisResponse?: LuisResponse;
 }
 
 export interface LuisResponse{
 	analyzedText: string | undefined;
-	statementTypes: {[statementType: string] : string };
+	suggestions: {[statementType: string] : string };
 }
 
 export const INTERVIEWEE_JOINED_TYPE = 'INTERVIEWEE_JOINED';
