@@ -34,7 +34,7 @@ function generateGUID() {
 
 
 const app = express();
-//const expressWs = ws(app);
+const expressWs = ws(app);
 
 app.use(express.static(__dirname + '/..'));
 
@@ -82,7 +82,10 @@ function isQuestion(text) {
 
 function EvaluateLUISResponse(response) {
 	if (response != null) {
-		let luisResult: luisJSON = JSON.parse(response);
+        let luisResult: luisJSON = JSON.parse(response);
+        if (luisResult.query == null) {
+            return;
+        }
 		const luisResponse = <Messages.LuisResponse>{analyzedText: luisResult.query, suggestions: []};
         const topResponse = luisResult.topScoringIntent;
         const primaryThreshold = isQuestion(luisResult.query) ? Suggestions.PRIMARY_QUESTION_SUGGESTION_THRESHOLD : Suggestions.PRIMARY_SUGGESTION_THRESHOLD;
@@ -116,32 +119,24 @@ function EvaluateLUISResponse(response) {
 	}
 }
 
-function handleTextAnalytics(ws, msg){
-	const utterance = JSON.parse(msg);
-	const text = utterance.content.text;
-	//Send message to LUIS service
-	if(text == null){
-		return;
-	}
-	punctuation.addPunctuation(text, (punctuatedText) => {
-		console.log("Received " + punctuatedText + "from addPunct");
-		punctuatedText.split(/[".?;]+/).forEach(sentence => {
-			console.log("Split: " + sentence);
-			if(sentence != null){
-				luis.getLuisIntent(sentence, (response) => {
-					const luisResponse = EvaluateLUISResponse(response);
-					console.log(luisResponse);
-					utterance.content.luisResponse = luisResponse;
-					if (luisResponse != null){
-						console.log("Adding luis response");
-						ws.send(JSON.stringify(<Messages.IMessageData>{
-							messageType: Messages.LUIS_TYPE, 
-							content: utterance.content
-						}));
-					}
-				});
-			}
-		});
+function handleTextAnalytics(ws, punctuatedUtterance: Messages.IMessageData){
+	console.log("Received " + punctuatedUtterance + "from addPunct");
+	punctuatedUtterance.content.text.split(/[".?;]+/).forEach(sentence => {
+		console.log("Split: " + sentence);
+		if(sentence != null){
+			luis.getLuisIntent(sentence, (response) => {
+				const luisResponse = EvaluateLUISResponse(response);
+				console.log(luisResponse);
+                if (luisResponse != null) {
+				    punctuatedUtterance.content.luisResponse = luisResponse;
+					console.log("Adding luis response");
+					ws.send(JSON.stringify(<Messages.IMessageData>{
+						messageType: Messages.LUIS_TYPE, 
+						content: punctuatedUtterance.content
+					}));
+				}
+			});
+		}
 	});
 }
 
@@ -183,25 +178,18 @@ app.ws('/createSession', (interviewerWs, req) => {
 	// Add interviewer WS to clients
 	clients[interviewerId] = interviewerWs;
 
-	interviewerWs.on('message', msg => {
-		console.log('Received a message from interviewer', msg);
-		// Don't need to send anything to the interviewee
-
-		// let intervieweeId: string | null = null;
-		// Get interviewee ID from session
-		// for (const id of Object.keys(sessions)) {
-		// 	if (sessions[id].interviewerId == interviewerId) {
-		// 		intervieweeId = sessions[id].intervieweeId;
-		// 	}
-		// }
-
-		// if (intervieweeId != null) {
-		// 	console.log('forwarding message from interviewer to interviewee if interviewee has connected');
-		// 	const message = JSON.parse(msg);
-		// 	message.messageType = 'transcript';
-		// 	clients[intervieweeId].send(JSON.stringify(message));
-		// }
-		handleTextAnalytics(interviewerWs, msg);
+    interviewerWs.on('message', msg => {
+        const utterance: Messages.IMessageData = <Messages.IMessageData>JSON.parse(msg);
+        if (utterance && utterance.content && utterance.content.text && utterance.content.text.length > 0) {
+            console.log('Received a message from interviewer', msg);
+            const text = utterance.content.text;
+            //Send punctuated text back to the front end to display first
+            punctuation.addPunctuation(text, (punctuatedText) => {
+                utterance.content.text = punctuatedText;
+                interviewerWs.send(JSON.stringify(utterance));
+                handleTextAnalytics(interviewerWs, utterance);
+            });
+        }
 	});
 });
 
@@ -253,8 +241,13 @@ app.ws('/', (ws, req) => {
 		console.log('received a message from interviewee', msg);
 		console.log('forwarding message from interviewee to interviewer');
 
-		const message: Messages.IMessageData = <Messages.IMessageData>JSON.parse(msg);
-		clients[session.interviewerId].send(JSON.stringify(message));
+        const message: Messages.IMessageData = <Messages.IMessageData>JSON.parse(msg);
+        if (message.content && message.content.text && message.content.text.length > 0) {
+            punctuation.addPunctuation(message.content.text, (punctuatedText) => {
+                message.content.text = punctuatedText;
+                clients[session.interviewerId].send(JSON.stringify(message));
+            });
+        }
 	});
 });
 

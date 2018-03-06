@@ -109,13 +109,6 @@ export default class Interview extends React.Component<InterviewProps, Interview
         content: utterance
       } as Messages.IMessageData
     ));
-
-    this.utterancesByKey[utterance.key] = utterance;
-
-    this.setState({
-      utteranceKeys: [...this.state.utteranceKeys, utterance.key],
-      interviewerSpeakingPercent: Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
-    });
   }
 
   // Method to get a specific utterance by its key, passed down so that the Utterance component can know whether it needs
