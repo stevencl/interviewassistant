@@ -15,9 +15,9 @@ export default class Utterance extends React.Component<UtteranceProps, Utterance
     constructor(props) {
         super(props);
 
-        this.setState({
+        this.state = {
             utterance: this.props.getUtteranceByKey(this.props.utteranceKey)
-        });
+        };
     }
 
     shouldComponentUpdate(nextProps, nextState): boolean {
