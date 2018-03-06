@@ -5,7 +5,7 @@ import * as request from 'request';
 
 var querystring = require('querystring');
 
-export function getLuisIntent(utterance): string {
+export function getLuisIntent(utterance, callback) {
     var endpoint =
         "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/";
 
@@ -42,8 +42,8 @@ export function getLuisIntent(utterance): string {
                 }
                 luisResponse = body;
             }
+            return callback(luisResponse);
         });
-    return luisResponse;
 }
 
 // Pass an utterance to the sample LUIS app

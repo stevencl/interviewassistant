@@ -22,11 +22,11 @@ function insertPhrase(db, startTime, duration, phrase: string | undefined) {
 
 }
 
-function sendTextToLUIS(text: string | undefined) {
+function sendTextToLUIS(text: string | undefined, callback) {
 	let response: string;
 	response = "";
 	if (text != undefined) {
-		response = luis.getLuisIntent(text);
+		response = luis.getLuisIntent(text, callback);
 	}
 	return response;
 }
@@ -68,14 +68,13 @@ class LUISResponse{
 }
 
 function EvaluateLUISResponse(response){
-	const primaryStatementThreshold = 0.75;
-	const secondaryStatementThreshold = 0.6;
-	const primaryQuestionThreshold = 0.6;
-	const secondaryQuestionThreshold = 0.45;
-	const luisResponse = new LUISResponse('hi', response.text, "None");
+	const primaryStatementThreshold = 0.3;
+	const secondaryStatementThreshold = 0.2;
+	const primaryQuestionThreshold = 0.2;
+	const secondaryQuestionThreshold = 0.1;
 	if (response != null) {
-		console.log(response);
 		const luisResult = JSON.parse(response);
+		const luisResponse = new LUISResponse('hi', luisResult.query, "None");
 		const topResponse = luisResult.topScoringIntent;
 		//Evaluate the top scoring intent first
 		if(topResponse == null){
@@ -100,8 +99,8 @@ function EvaluateLUISResponse(response){
 				}
 			}
 		}
+		return luisResponse;
 	}
-	return luisResponse;
 }
 
 function handleTextAnalytics(ws, msg){
@@ -116,19 +115,22 @@ function handleTextAnalytics(ws, msg){
 	if(text == null){
 		return;
 	}
-	const luisResponses: LUISResponse[] = [];
 	punctuation.addPunctuation(text, (punctuatedText) => {
 		console.log("Received " + punctuatedText + "from addPunct");
 		punctuatedText.split(/[".?;]+/).forEach(sentence => {
-			console.log("Split: " + sentence);
-			const response = sendTextToLUIS(sentence);
-			const luisResponse = EvaluateLUISResponse(response);
-			if(luisResponse != null){
-				luisResponses.push(luisResponse);
-			}
+		console.log("Split: " + sentence);
+		if(sentence != null){
+			const response = luis.getLuisIntent(sentence, (response) => {
+				const luisResponse = EvaluateLUISResponse(response);
+				console.log(luisResponse);
+				if(luisResponse != null){
+					console.log("Adding luis response");
+					ws.send(JSON.stringify({messageType:'LUIS', luisResponse: luisResponse}));
+				}
+			});
+		}
 		});
 	});
-	ws.send(JSON.stringify({messageType: 'LUIS', luisResponses: luisResponses}));
 }
 
 const sessions: { [sessionId: string]: Session } = {};
