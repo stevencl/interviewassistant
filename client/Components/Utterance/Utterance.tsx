@@ -22,16 +22,10 @@ export default class Utterance extends React.Component<UtteranceProps, Utterance
 
     shouldComponentUpdate(nextProps, nextState): boolean {
         const nextUtterance = this.props.getUtteranceByKey(nextProps.utteranceKey);
-        console.log('Current utterance is ', this.currentUtterance);
-        console.log('Next utterance is ', nextUtterance);
-        // TODO, check if LUIS information has been added
         if (!this.currentUtterance.luisResponse && nextUtterance.luisResponse) {
-            console.log('COMPONENT SHOULD UPDATE');
             this.currentUtterance = nextUtterance;
             return true;
         }
-
-        console.log('COMPONENT WONT UPDATE');
 
         return false;
     }
