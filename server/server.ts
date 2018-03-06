@@ -34,7 +34,7 @@ function generateGUID() {
 
 
 const app = express();
-//const expressWs = ws(app);
+const expressWs = ws(app);
 
 app.use(express.static(__dirname + '/..'));
 
@@ -82,7 +82,10 @@ function isQuestion(text) {
 
 function EvaluateLUISResponse(response) {
 	if (response != null) {
-		let luisResult: luisJSON = JSON.parse(response);
+        let luisResult: luisJSON = JSON.parse(response);
+        if (luisResult.query == null) {
+            return;
+        }
 		const luisResponse = <Messages.LuisResponse>{analyzedText: luisResult.query, suggestions: []};
         const topResponse = luisResult.topScoringIntent;
         const primaryThreshold = isQuestion(luisResult.query) ? Suggestions.PRIMARY_QUESTION_SUGGESTION_THRESHOLD : Suggestions.PRIMARY_SUGGESTION_THRESHOLD;
