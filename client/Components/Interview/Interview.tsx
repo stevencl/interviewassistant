@@ -50,6 +50,11 @@ export default class Interview extends React.Component<InterviewProps, Interview
                 utteranceKeys: [...this.state.utteranceKeys, messageContent.key]
               });
           }
+        } else if (message.messageType === Messages.LUIS_TYPE) {
+          const messageContent: Messages.IUtteranceContent = message.content;
+          if (messageContent && messageContent.key) {
+            this.utterancesByKey[messageContent.key] = messageContent;
+          }
         } else {
           console.log('Didnt get the expected utterance message');
         }
