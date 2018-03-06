@@ -36,7 +36,7 @@ class App extends React.Component {
           </header>
 
           <div className="content">
-            <Route path="/" component={Home} />
+            <Route exact path="/" component={Home} />
             <Route path="/createSession" render={(props) => (
               <CreateSession {...props} initializeSocket={initializeSocketForInterviewer} />
             )} />
