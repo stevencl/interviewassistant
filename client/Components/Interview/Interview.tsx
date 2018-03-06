@@ -5,6 +5,7 @@ import { Microphone } from '../../lib/Audio/audio';
 import { SpeechToTextService, SpeechPausedResult } from '../../lib/speechToText/speechService';
 import { initializeSpeechToText, startRecording } from '../../lib/speechToText/speechCommon';
 import Conversation from '../Conversation/Conversation';
+import SpeakingAmount from '../SpeakingAmount/SpeakingAmount';
 import * as Messages from '../../lib/Common/Messages';
  
 export type InterviewProps = {
@@ -14,7 +15,7 @@ export type InterviewProps = {
 type InterviewState = {
   // A list of all the utterance keys in the order received, to be rendered
   utteranceKeys: string[];
-  interviewerTalkingPercent: number;
+  interviewerSpeakingPercent: number;
 }
 
 export default class Interview extends React.Component<InterviewProps, InterviewState> {
@@ -30,7 +31,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
 
     this.state = {
       utteranceKeys: [],
-      interviewerTalkingPercent: 50
+      interviewerSpeakingPercent: 50
     };
 
     const mic = new Microphone();
@@ -53,7 +54,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
 
               this.setState({
                 utteranceKeys: [...this.state.utteranceKeys, messageContent.key],
-                interviewerTalkingPercent: 100 - Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
+                interviewerSpeakingPercent: 100 - Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
               });
           }
         } else if (message.messageType === Messages.LUIS_TYPE) {
@@ -113,7 +114,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
 
     this.setState({
       utteranceKeys: [...this.state.utteranceKeys, utterance.key],
-      interviewerTalkingPercent: Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
+      interviewerSpeakingPercent: Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
     });
   }
 
@@ -128,6 +129,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
       <div>      
         This is the interview component
         {/* <Subtitles label={this.state.subtitles} /> */}
+        <SpeakingAmount interviewerSpeakingAmount={this.state.interviewerSpeakingPercent} />
         <Conversation utteranceKeys={this.state.utteranceKeys} getUtteranceByKey={this.getUtteranceByKey} />      
       </div>
     )

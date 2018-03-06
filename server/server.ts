@@ -88,24 +88,26 @@ function EvaluateLUISResponse(response) {
         const primaryThreshold = isQuestion(luisResult.query) ? Suggestions.PRIMARY_QUESTION_SUGGESTION_THRESHOLD : Suggestions.PRIMARY_SUGGESTION_THRESHOLD;
         const secondaryThreshold = isQuestion(luisResult.query) ? Suggestions.SECONDARY_QUESTION_SUGGESTION_THRESHOLD : Suggestions.SECONDARY_SUGGESTION_THRESHOLD;
 		//Evaluate the top scoring intent first
-		if(topResponse == null){
+		if (topResponse == null) {
 			//No significant response
 			return null;
 		}
 
-		if(topResponse.score > primaryThreshold && topResponse.intent != "None"){
+		if (topResponse.score > primaryThreshold && topResponse.intent != "None") {
 			// Significant top response.
 			luisResponse.suggestions.push(getSuggestion(topResponse.intent));
-		} else{
+		} else {
 			// No significant response
 			return null;
 		}
 
 		//Evaluate secondary intents if there are any
-		if (luisResult.intents != null){
+		if (luisResult.intents != null) {
 			for (const intent of luisResult.intents) {
-				if(intent.intent == topResponse.intent){ continue; } //Ignore top response in these checks
-				if(intent.score > secondaryThreshold && intent.intent != "None"){
+				if (intent.intent == topResponse.intent) { 
+					continue; 
+				} //Ignore top response in these checks
+				if (intent.score > secondaryThreshold && intent.intent != "None") {
 					luisResponse.suggestions.push(getSuggestion(intent.intent));
 				}
 			}
@@ -130,7 +132,7 @@ function handleTextAnalytics(ws, msg){
 					const luisResponse = EvaluateLUISResponse(response);
 					console.log(luisResponse);
 					utterance.content.luisResponse = luisResponse;
-					if(luisResponse != null){
+					if (luisResponse != null){
 						console.log("Adding luis response");
 						ws.send(JSON.stringify(<Messages.IMessageData>{
 							messageType: Messages.LUIS_TYPE, 
