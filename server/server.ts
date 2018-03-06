@@ -4,6 +4,7 @@ import * as luis from './luis';
 import * as punctuation from './punctuation';
 import * as URL from 'url';
 import * as Messages from './Messages';
+import * as Suggestions from './suggestions';
 
 function insertPhrase(db, startTime, duration, phrase: string | undefined) {
 	var text = "";
@@ -55,16 +56,16 @@ function openDBConnection(){
 	});
 }
 
-class LUISResponse{
-	id: string;
-	analyzedText: string | undefined;
-	statementType: string;
-	secondaryStatementTypes: string[];
-	constructor(id: string, analyzedText: string, statementType: string){
-		this.id = id;
-		this.analyzedText = analyzedText,
-		this.statementType = statementType,
-		this.secondaryStatementTypes = [];
+function getSuggestion(intent){
+	switch(intent){
+		case Suggestions.closedQuestionResponse:
+			return Suggestions.closedQuestionSuggestion;
+		case Suggestions.leadingQuestionResponse:
+			return Suggestions.leadingQuestionSuggestion;
+		case Suggestions.JTBDResponse:
+			return Suggestions.JTBDSuggestion;
+		default:
+			return Suggestions.defaultSuggestion;
 	}
 }
 
@@ -75,7 +76,7 @@ function EvaluateLUISResponse(response){
 	const secondaryQuestionThreshold = 0.1;
 	if (response != null) {
 		const luisResult = JSON.parse(response);
-		const luisResponse = new LUISResponse('hi', luisResult.query, "None");
+		const luisResponse = new Messages.LuisResponse(luisResult.query);
 		const topResponse = luisResult.topScoringIntent;
 		//Evaluate the top scoring intent first
 		if(topResponse == null){
@@ -85,7 +86,7 @@ function EvaluateLUISResponse(response){
 
 		if(+topResponse.score > primaryStatementThreshold && topResponse.intent != "None"){
 			// Significant top response.
-			luisResponse.statementType = topResponse.intent;
+			luisResponse.statementTypes[topResponse.intent] = getSuggestion(topResponse.intent);
 		} else{
 			// No response is significant
 			return null;
@@ -95,8 +96,8 @@ function EvaluateLUISResponse(response){
 		if (luisResult.intents != null){
 			for (const intent in luisResult.intents){
 				if(intent.intent == topResponse.intent){ continue; } //Ignore top response in these checks
-				if(+intent.score > secondaryStatementThreshold && topResponse.intent != "None"){
-					luisResponse.secondaryStatementTypes.push(intent.intent);
+				if(+intent.score > secondaryStatementThreshold && intent.intent != "None"){
+					luisResponse.statementTypes[intent.intent] = getSuggestion(intent.intent);
 				}
 			}
 		}
@@ -105,13 +106,8 @@ function EvaluateLUISResponse(response){
 }
 
 function handleTextAnalytics(ws, msg){
-	let duration: number | undefined = undefined;
-	let text: string | undefined = undefined;
-	let startTimeText: string | undefined = undefined;
-	const parsedMsg = JSON.parse(msg);
-	duration = parsedMsg.duration;
-	startTimeText = parsedMsg.startTimeText;
-	text = parsedMsg.text;
+	const utterance = JSON.parse(msg);
+	const text = utterance.content.text;
 	//Send message to LUIS service
 	if(text == null){
 		return;
@@ -119,17 +115,21 @@ function handleTextAnalytics(ws, msg){
 	punctuation.addPunctuation(text, (punctuatedText) => {
 		console.log("Received " + punctuatedText + "from addPunct");
 		punctuatedText.split(/[".?;]+/).forEach(sentence => {
-		console.log("Split: " + sentence);
-		if(sentence != null){
-			const response = luis.getLuisIntent(sentence, (response) => {
-				const luisResponse = EvaluateLUISResponse(response);
-				console.log(luisResponse);
-				if(luisResponse != null){
-					console.log("Adding luis response");
-					ws.send(JSON.stringify({messageType:'LUIS', luisResponse: luisResponse}));
-				}
-			});
-		}
+			console.log("Split: " + sentence);
+			if(sentence != null){
+				const response = luis.getLuisIntent(sentence, (response) => {
+					const luisResponse = EvaluateLUISResponse(response);
+					console.log(luisResponse);
+					utterance.luisResponse = luisResponse;
+					if(luisResponse != null){
+						console.log("Adding luis response");
+						ws.send(JSON.stringify(<Messages.IMessageData>{
+							messageType:'LUIS', 
+							content: utterance.content
+						}));
+					}
+				});
+			}
 		});
 	});
 }

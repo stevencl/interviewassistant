@@ -10,6 +10,16 @@ export interface IUtteranceContent {
     text: string;
     duration: number;
     startTime: string;
+    luisResponse: LuisResponse
+}
+
+export class LuisResponse{
+	analyzedText: string | undefined;
+	statementTypes: {[statementType: string] : string };
+	constructor(analyzedText: string){
+		this.analyzedText = analyzedText;
+		this.statementTypes = {};
+	}
 }
 
 export const INTERVIEWEE_JOINED_TYPE = 'INTERVIEWEE_JOINED';
@@ -22,4 +32,3 @@ export const URL_FOR_INTERVIEWEE_TYPE = 'URL_FOR_INTERVIEWEE_TYPE';
 export interface IUrlForIntervieweeContent {
     urlForInterviewee: string;
 }
-
