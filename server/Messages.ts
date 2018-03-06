@@ -5,6 +5,7 @@ export interface IMessageData {
 
 export const UTTERANCE_TYPE = 'UTTERANCE';
 export interface IUtteranceContent {
+    key: string;
     speaker: "interviewer" | "interviewee";
     text: string;
     duration: number;

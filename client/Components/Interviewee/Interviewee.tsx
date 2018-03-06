@@ -63,7 +63,9 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
 
   private handleTranscript = (transcript: string, startTimeText: string, endTimeText: string, duration: number) => {
     console.log('Interviewee said: ', transcript);
+    const utteranceKey = `interviewee:${startTimeText}`;
     const utterance: Messages.IUtteranceContent =  {
+      key: utteranceKey,
       speaker: "interviewee",
       duration: duration,
       text: transcript,

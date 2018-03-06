@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as Messages from '../../lib/Common/Messages';
+import Utterance from '../Utterance/Utterance';
 
 export type ConversationProps = {
-    utterances: Messages.IUtteranceContent[];
+    utteranceKeys: string[];
+    getUtteranceByKey: (key: string) => Messages.IUtteranceContent;
 };
 
 type ConversationState = {
@@ -15,20 +17,12 @@ export default class Conversation extends React.Component<ConversationProps, Con
     super(props);
   }
 
-  componentWillUnmount() {
-  }
-
   render() {
     return <div className="conversation">      
         This is the conversation component
 
-        {this.props.utterances.map(utterance => {
-
-          return (
-            <div className={`utterance ${utterance.speaker === "interviewer" ? "utterance--interviewer" : "utterance--interviewee"}`}>
-              <p>{utterance.text}</p>
-            </div>
-          )
+        {this.props.utteranceKeys.map(key => {
+          return <Utterance key={key} utteranceKey={key} getUtteranceByKey={this.props.getUtteranceByKey} />
         })}
     </div>
   };
