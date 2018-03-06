@@ -53,6 +53,59 @@ function openDBConnection(){
 	});
 }
 
+class LUISResponse{
+	id: string;
+	analyzedText: string | undefined;
+	statementType: string;
+	secondaryStatementTypes: string[];
+	constructor(id: string, analyzedText: string, statementType: string){
+		this.id = id;
+		this.analyzedText = analyzedText,
+		this.statementType = statementType,
+		this.secondaryStatementTypes = [];
+	}
+}
+
+function EvaluateLUISResponse(responses){
+	const primaryStatementThreshold = 0.75;
+	const secondaryStatementThreshold = 0.6;
+	const primaryQuestionThreshold = 0.6;
+	const secondaryQuestionThreshold = 0.45;
+	const luisResponses: {id: string, analyzedText: string | undefined, questionType: string}[] = [];
+	if (responses != null) {
+		console.log(responses);
+		for(const response in responses){
+			const luisResult = JSON.parse(response);
+			const topResponse = luisResult.topScoringIntent;
+			const luisResponse = new LUISResponse('hi', response.text, "None");
+			//Evaluate the top scoring intent first
+			if(topResponse == null){
+				//No significant response
+				continue;
+			}
+
+			if(+topResponse.score > 0.75){
+				// Significant top response.
+				luisResponse.statementType = topResponse.intent;
+			} else{
+				// No response is significant
+				continue;
+			}
+
+			//Evaluate secondary intents if there are any
+			if (luisResult.intents != null){
+				for (const intent in luisResult.intents){
+					if(intent.intent == topResponse.intent){ continue; } //Ignore top response in these checks
+					if(+intent.score > 0.6){
+						luisResponse.secondaryStatementTypes.push(intent.intent);
+					}
+				}
+			}
+		}
+	}
+	return luisResponses;
+}
+
 function handleTextAnalytics(ws, msg){
 	let duration: number | undefined = undefined;
 	let text: string | undefined = undefined;
@@ -66,20 +119,11 @@ function handleTextAnalytics(ws, msg){
 	console.log("received " + response.toString());
 	//const msg1 = "Hello. You asked a leading question: " + text;
 	//insertPhrase(db, startTimeText, duration, text);
-	if (response != "") {
-		console.log(response);
-		const luisResponse = JSON.parse(response);
-		// if (luisResponse.intents != null){
-		// 	const primaryThreshold = 0.5;
-		// 	const secondaryThreshold = 0.4;
-		// 	for (const intent in luisResponse.intents){
-				
-		// 	}
-		// }
-		var message = JSON.parse(msg);
-		message.messageType = 'LUIS';
-		ws.send(JSON.stringify(message));
-	}
+
+	const responses = null; //Add punctuation handler here.
+	const luisResponses = EvaluateLUISResponse(responses);
+
+	ws.send(JSON.stringify({messageType: 'LUIS', messages: luisResponses}));
 }
 
 const sessions: { [sessionId: string]: Session } = {};
@@ -151,7 +195,6 @@ app.ws('/', (ws, req) => {
 	const intervieweeId = generateGUID();
 	sessions[sessionId].intervieweeId = intervieweeId;
 	clients[intervieweeId] = ws;
-		
 	ws.on('message', (msg) => {
 		console.log('received a message from interviewee', msg);
 		console.log('forwarding message from interviewee to interviewer');
