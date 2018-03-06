@@ -86,7 +86,7 @@ function EvaluateLUISResponse(response){
 
 		if(+topResponse.score > primaryStatementThreshold && topResponse.intent != "None"){
 			// Significant top response.
-			luisResponse.statementTypes[topResponse.intent] = getSuggestion(topResponse.intent);
+			luisResponse.suggestions[topResponse.intent] = getSuggestion(topResponse.intent);
 		} else{
 			// No response is significant
 			return null;
@@ -97,7 +97,7 @@ function EvaluateLUISResponse(response){
 			for (const intent in luisResult.intents){
 				if(intent.intent == topResponse.intent){ continue; } //Ignore top response in these checks
 				if(+intent.score > secondaryStatementThreshold && intent.intent != "None"){
-					luisResponse.statementTypes[intent.intent] = getSuggestion(intent.intent);
+					luisResponse.suggestions[intent.intent] = getSuggestion(intent.intent);
 				}
 			}
 		}
