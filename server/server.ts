@@ -6,32 +6,25 @@ import * as URL from 'url';
 import * as Messages from './Messages';
 import * as Suggestions from './suggestions';
 
-function insertPhrase(db, startTime, duration, phrase: string | undefined) {
-	var text = "";
-	if (phrase !=undefined) {
-		text = phrase;
-	}
-	db.collection('interviews').insertOne( {
-		"id": "testInterview",
-		"startTime": startTime,
-		"duration": duration,
-		"phrase": text
-	}).then(function(result) {
-		console.log("Inserted a phrase in the phrase collection");
-	}).catch(function(err) {
-		console.log("Could not insert record");
-	});
+//function insertPhrase(db, startTime, duration, phrase: string | undefined) {
+//	var text = "";
+//	if (phrase !=undefined) {
+//		text = phrase;
+//	}
+//	db.collection('interviews').insertOne( {
+//		"id": "testInterview",
+//		"startTime": startTime,
+//		"duration": duration,
+//		"phrase": text
+//	}).then(function(result) {
+//		console.log("Inserted a phrase in the phrase collection");
+//	}).catch(function(err) {
+//		console.log("Could not insert record");
+//	});
 
-}
+//}
 
-function sendTextToLUIS(text: string | undefined, callback) {
-	let response: string;
-	response = "";
-	if (text != undefined) {
-		response = luis.getLuisIntent(text, callback);
-	}
-	return response;
-}
+
 function generateGUID() {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -41,20 +34,20 @@ function generateGUID() {
 
 
 const app = express();
-const expressWs = ws(app);
+//const expressWs = ws(app);
 
 app.use(express.static(__dirname + '/..'));
 
-function openDBConnection(){
-	var mongoClient = require("mongodb").MongoClient;
-	var password = encodeURIComponent("RFtVpFkJ3uR4MTptTTrIvOtHKLOVSRhxSqD51mEMvUnbL3FxHSRtEkqoRAQZ3i3iDpV3qDkOlf3G4rVI5a9jBw==");
-	mongoClient.connect("mongodb://interviewtranscript:" + password + "@interviewtranscript.documents.azure.com:10255/?ssl=true")
-	.then(function (database) {})
-	.catch(function (err) {
-		console.log("Database connection was not created properly");
-		console.log("error opening", err);
-	});
-}
+//function openDBConnection(){
+//	var mongoClient = require("mongodb").MongoClient;
+//	var password = encodeURIComponent("RFtVpFkJ3uR4MTptTTrIvOtHKLOVSRhxSqD51mEMvUnbL3FxHSRtEkqoRAQZ3i3iDpV3qDkOlf3G4rVI5a9jBw==");
+//	mongoClient.connect("mongodb://interviewtranscript:" + password + "@interviewtranscript.documents.azure.com:10255/?ssl=true")
+//	.then(function (database) {})
+//	.catch(function (err) {
+//		console.log("Database connection was not created properly");
+//		console.log("error opening", err);
+//	});
+//}
 
 function getSuggestion(intent){
 	switch(intent){
@@ -69,35 +62,51 @@ function getSuggestion(intent){
 	}
 }
 
-function EvaluateLUISResponse(response){
-	const primaryStatementThreshold = 0.3;
-	const secondaryStatementThreshold = 0.2;
-	const primaryQuestionThreshold = 0.2;
-	const secondaryQuestionThreshold = 0.1;
+type intent = {
+    intent: string;
+    score: number;
+}
+
+type luisJSON = {
+    query: string;
+    intents: intent[];
+    topScoringIntent: intent;
+}
+
+function isQuestion(text) {
+    if (text[text.length - 1] === "?") {
+        return true;
+    }
+    return false;
+}
+
+function EvaluateLUISResponse(response) {
 	if (response != null) {
-		const luisResult = JSON.parse(response);
-		const luisResponse = <Messages.LuisResponse>{analyzedText: luisResult.query, suggestions: {}};
-		const topResponse = luisResult.topScoringIntent;
+		let luisResult: luisJSON = JSON.parse(response);
+		const luisResponse = <Messages.LuisResponse>{analyzedText: luisResult.query, suggestions: []};
+        const topResponse = luisResult.topScoringIntent;
+        const primaryThreshold = isQuestion(luisResult.query) ? Suggestions.PRIMARY_QUESTION_SUGGESTION_THRESHOLD : Suggestions.PRIMARY_SUGGESTION_THRESHOLD;
+        const secondaryThreshold = isQuestion(luisResult.query) ? Suggestions.SECONDARY_QUESTION_SUGGESTION_THRESHOLD : Suggestions.SECONDARY_SUGGESTION_THRESHOLD;
 		//Evaluate the top scoring intent first
 		if(topResponse == null){
 			//No significant response
 			return null;
 		}
 
-		if(+topResponse.score > primaryStatementThreshold && topResponse.intent != "None"){
+		if(topResponse.score > primaryThreshold && topResponse.intent != "None"){
 			// Significant top response.
-			luisResponse.suggestions[topResponse.intent] = getSuggestion(topResponse.intent);
+			luisResponse.suggestions.push(getSuggestion(topResponse.intent));
 		} else{
-			// No response is significant
+			// No significant response
 			return null;
 		}
 
 		//Evaluate secondary intents if there are any
 		if (luisResult.intents != null){
-			for (const intent in luisResult.intents){
+			for (const intent of luisResult.intents) {
 				if(intent.intent == topResponse.intent){ continue; } //Ignore top response in these checks
-				if(+intent.score > secondaryStatementThreshold && intent.intent != "None"){
-					luisResponse.suggestions[intent.intent] = getSuggestion(intent.intent);
+				if(intent.score > secondaryThreshold && intent.intent != "None"){
+					luisResponse.suggestions.push(getSuggestion(intent.intent));
 				}
 			}
 		}
