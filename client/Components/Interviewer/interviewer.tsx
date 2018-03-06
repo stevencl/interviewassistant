@@ -310,7 +310,7 @@ export class Interviewer extends React.Component<InterviewerProps, InterviewerSt
       </section>
       <section className="section">
       <InterviewerStartForm onStartInterview={() => this.requestHandshake()} callback={this.studyDetailsCallback}/>
-      <InterviewerStartForm onStartInterview={() => this.startTheRecording()} callback={this.studyDetailsCallback}/>
+      <InterviewerStartForm onStartInterview={() => this.startTheRecording(null)} callback={this.studyDetailsCallback}/>
       </section>
 
       <section className="section">
