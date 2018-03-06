@@ -27,5 +27,6 @@
     "concurrently": "^3.5.0",
     "nodemon": "^1.11.0",
     "typescript": "^2.7.2"
-  }
+  },
+  "dependencies": {}
 }

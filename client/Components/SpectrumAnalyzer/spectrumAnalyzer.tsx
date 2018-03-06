@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Event, Emitter } from '../../lib/speechToText/util';
-import { Microphone } from '../../Audio/audio';
+import { Microphone } from '../../lib/Audio/audio';
 import { SpeechToTextService, SpeechPausedResult } from '../../lib/speechToText/speechService';
 
 export class SpectrumAnalyzer extends React.Component<SpectrumAnalyzerProps> {
@@ -26,7 +26,6 @@ export class SpectrumAnalyzer extends React.Component<SpectrumAnalyzerProps> {
       {
         console.log('Microphone not ready yet for spectrum analyzer');
       }
-  
     }
   
     componentWillUnmount() {

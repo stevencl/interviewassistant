@@ -78,16 +78,34 @@ const sessions: { [sessionId: string]: Session } = {};
 const clients: { [clientId: string]: WebSocket } = {};
 
 // Interviewer connects to this websocket to establish the session and it is also used to send messages
-app.ws('/createSession', (interviewerWs, req) =>{
+app.ws('/createSession', (interviewerWs, req) => {
+	const parameters = URL.parse(req.url, true);
+
+	if (parameters == null || parameters["query"] == null) {
+		console.log('Invalid parameters, returning');
+		ws.close();
+		return; 
+	}
+
+	const interviewerName = parameters["query"]!["interviewerName"];
+	console.log('An interviewer is trying to create a session with name: ' + interviewerName)
+
+	if (interviewerName == null) {
+		ws.close();
+		return;
+	}
+
 	const sessionId = generateGUID();
 	const interviewerId = generateGUID();
-	const session = new Session(sessionId, interviewerId);
+	const session = new Session(sessionId, interviewerId, interviewerName);
 	sessions[sessionId] = session;
 
 	// Send the interviewer the session ID to give to the interviewee
 	console.log('sending interviewer the session id: ' + sessionId);
-	interviewerWs.send(sessionId);
-	
+	interviewerWs.send(JSON.stringify({
+		urlForInterviewee: `localhost:3000/#/interviewee?sessionId=${sessionId}`
+	}));
+
 	// Add interviewer WS to clients
 	clients[interviewerId] = interviewerWs;
 
@@ -119,6 +137,7 @@ app.ws('/', (ws, req) => {
 
 	if (parameters == null || parameters["query"] == null) {
 		console.log('Invalid parameters, returning');
+		ws.close();
 		return; 
 	}
 
@@ -127,12 +146,14 @@ app.ws('/', (ws, req) => {
 
 	if (sessionId == null) {
 		// Not trying to join an existing session
+		ws.close();
 		return;
 	}
 
 	// Check whether session ID corresponds to an existing session
 	if (!sessions[sessionId]) {
 		console.log('Not a valid session ID');
+		ws.close();
 		return;
 	}
 
@@ -143,7 +164,16 @@ app.ws('/', (ws, req) => {
 	const intervieweeId = generateGUID();
 	sessions[sessionId].intervieweeId = intervieweeId;
 	clients[intervieweeId] = ws;
-		
+
+	// Let the interviewer know that the interviewee has joined
+	const interviewerId = sessions[sessionId].interviewerId;
+	clients[interviewerId].send(JSON.stringify({
+		sessionData: {
+			interviewerName: sessions[sessionId].intervieweeName,
+			intervieweeName: sessions[sessionId].intervieweeName
+		}
+	}));
+
 	ws.on('message', (msg) => {
 		console.log('received a message from interviewee', msg);
 		console.log('forwarding message from interviewee to interviewer');
@@ -165,8 +195,12 @@ class Session {
 	// Note: only 1 interviewer and 1 interviewee per session
 	public interviewerId: string;
 	public intervieweeId: string;
+	public interviewerName: string;
+	public intervieweeName: string = "IntervieweeName";
 
-	constructor(sessionId: string, interviewerId: string) {
+	constructor(sessionId: string, interviewerId: string, interviewerName: string) {
 		this.sessionId = sessionId;
+		this.interviewerId = interviewerId;
+		this.interviewerName = interviewerName;
 	}
 }

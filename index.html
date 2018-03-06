@@ -13,12 +13,21 @@
   <script>
     System.config({
       baseURL: 'client',
-      packages: { './': { defaultExtension: 'js' } },
+      packages: { 
+        './': { defaultExtension: 'js' }
+      },
       map: {
         'react': 'https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.min.js',
         'react-dom': 'https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.min.js',
         'react-router': 'https://cdnjs.cloudflare.com/ajax/libs/react-router/4.2.0/react-router.min.js',
-        'react-router-dom': 'https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/4.2.2/react-router-dom.min.js'
+        'react-router-dom': 'https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/4.2.2/react-router-dom.min.js',
+      },
+      paths: {
+        // These 3 are required by query-string. Why does system js not realise to get these requires from the same directory rather than going from the baseURL?
+        'strict-uri-encode': 'node_modules/strict-uri-encode/index.js',
+        'object-assign': 'node_modules/object-assign/index.js',
+        'decode-uri-component': 'node_modules/decode-uri-component/index.js',
+        'query-string': 'node_modules/query-string/index.js'
       }
     });
 

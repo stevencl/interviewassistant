@@ -19,12 +19,14 @@
   },
   "homepage": "https://github.com/joaomoreno/speakup#readme",
   "devDependencies": {
+    "@types/query-string": "^5.1.0",
     "@types/react": "^16.0.40",
     "@types/react-dom": "^16.0.4",
     "@types/react-router-dom": "^4.2.4",
     "typescript": "^2.4.1"
   },
   "dependencies": {
+    "query-string": "^5.1.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2"
