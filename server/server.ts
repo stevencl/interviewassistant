@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as ws from 'express-ws';
 import * as luis from './luis';
+import * as punctuation from './punctuation';
 import * as URL from 'url';
 
 function insertPhrase(db, startTime, duration, phrase: string | undefined) {
@@ -53,6 +54,56 @@ function openDBConnection(){
 	});
 }
 
+class LUISResponse{
+	id: string;
+	analyzedText: string | undefined;
+	statementType: string;
+	secondaryStatementTypes: string[];
+	constructor(id: string, analyzedText: string, statementType: string){
+		this.id = id;
+		this.analyzedText = analyzedText,
+		this.statementType = statementType,
+		this.secondaryStatementTypes = [];
+	}
+}
+
+function EvaluateLUISResponse(response){
+	const primaryStatementThreshold = 0.75;
+	const secondaryStatementThreshold = 0.6;
+	const primaryQuestionThreshold = 0.6;
+	const secondaryQuestionThreshold = 0.45;
+	const luisResponse = new LUISResponse('hi', response.text, "None");
+	if (response != null) {
+		console.log(response);
+		const luisResult = JSON.parse(response);
+		const topResponse = luisResult.topScoringIntent;
+		//Evaluate the top scoring intent first
+		if(topResponse == null){
+			//No significant response
+			return null;
+		}
+
+		if(+topResponse.score > primaryStatementThreshold && topResponse.intent != "None"){
+			// Significant top response.
+			luisResponse.statementType = topResponse.intent;
+		} else{
+			// No response is significant
+			return null;
+		}
+
+		//Evaluate secondary intents if there are any
+		if (luisResult.intents != null){
+			for (const intent in luisResult.intents){
+				if(intent.intent == topResponse.intent){ continue; } //Ignore top response in these checks
+				if(+intent.score > secondaryStatementThreshold && topResponse.intent != "None"){
+					luisResponse.secondaryStatementTypes.push(intent.intent);
+				}
+			}
+		}
+	}
+	return luisResponse;
+}
+
 function handleTextAnalytics(ws, msg){
 	let duration: number | undefined = undefined;
 	let text: string | undefined = undefined;
@@ -62,16 +113,22 @@ function handleTextAnalytics(ws, msg){
 	startTimeText = parsedMsg.startTimeText;
 	text = parsedMsg.text;
 	//Send message to LUIS service
-	const response = sendTextToLUIS(text);
-	console.log("received " + response.toString());
-	//const msg1 = "Hello. You asked a leading question: " + text;
-	//insertPhrase(db, startTimeText, duration, text);
-	if (response != "") {
-		console.log(response);
-		var message = JSON.parse(msg);
-		message.messageType = 'LUIS';
-		ws.send(JSON.stringify(message));
+	if(text == null){
+		return;
 	}
+	const luisResponses: LUISResponse[] = [];
+	punctuation.addPunctuation(text, (punctuatedText) => {
+		console.log("Received " + punctuatedText + "from addPunct");
+		punctuatedText.split(/[".?;]+/).forEach(sentence => {
+			console.log("Split: " + sentence);
+			const response = sendTextToLUIS(sentence);
+			const luisResponse = EvaluateLUISResponse(response);
+			if(luisResponse != null){
+				luisResponses.push(luisResponse);
+			}
+		});
+	});
+	ws.send(JSON.stringify({messageType: 'LUIS', luisResponses: luisResponses}));
 }
 
 const sessions: { [sessionId: string]: Session } = {};
