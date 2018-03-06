@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as ws from 'express-ws';
 import * as luis from './luis';
+import * as punctuation from './punctuation';
 import * as URL from 'url';
 
 function insertPhrase(db, startTime, duration, phrase: string | undefined) {
@@ -62,6 +63,7 @@ function handleTextAnalytics(ws, msg){
 	startTimeText = parsedMsg.startTimeText;
 	text = parsedMsg.text;
 	//Send message to LUIS service
+	const punctuatedText = punctuation.addPunctuation(text);
 	const response = sendTextToLUIS(text);
 	console.log("received " + response.toString());
 	//const msg1 = "Hello. You asked a leading question: " + text;
