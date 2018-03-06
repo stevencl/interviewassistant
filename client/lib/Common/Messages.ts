@@ -11,7 +11,7 @@ export interface IUtteranceContent {
     text: string;
     duration: number;
     startTime: string;
-    luisResponse: LuisResponse
+    luisResponse?: LuisResponse;
 }
 
 export interface LuisResponse{

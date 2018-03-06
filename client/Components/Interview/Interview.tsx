@@ -52,7 +52,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
           }
         } else if (message.messageType === Messages.LUIS_TYPE) {
           const messageContent: Messages.IUtteranceContent = message.content;
-          if (messageContent && messageContent.key) {
+          if (messageContent && messageContent.key && this.utterancesByKey[messageContent.key]) {
             this.utterancesByKey[messageContent.key] = messageContent;
           }
         } else {
