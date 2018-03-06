@@ -16,7 +16,7 @@ export interface IUtteranceContent {
 
 export interface LuisResponse{
 	analyzedText: string | undefined;
-	suggestions: {[statementType: string] : string };
+	suggestions: string[];
 }
 
 export const INTERVIEWEE_JOINED_TYPE = 'INTERVIEWEE_JOINED';
