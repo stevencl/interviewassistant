@@ -3,3 +3,4 @@ client/**/*.js
 server/**/*.js
 devenv.json
 .env
+client/**/.env
