@@ -58,14 +58,14 @@ function openDBConnection(){
 
 function getSuggestion(intent){
 	switch(intent){
-		case Suggestions.closedQuestionResponse:
-			return Suggestions.closedQuestionSuggestion;
-		case Suggestions.leadingQuestionResponse:
-			return Suggestions.leadingQuestionSuggestion;
-		case Suggestions.JTBDResponse:
-			return Suggestions.JTBDSuggestion;
+		case Suggestions.CLOSED_QUESTION_RESPONSE:
+			return Suggestions.CLOSED_QUESTION_SUGGESTION;
+		case Suggestions.LEADING_QUESTION_RESPONSE:
+			return Suggestions.LEADING_QUESTION_SUGGESTION;
+		case Suggestions.JTBD_RESPONSE:
+			return Suggestions.JTBD_SUGGESTION;
 		default:
-			return Suggestions.defaultSuggestion;
+			return Suggestions.DEFAULT_SUGGESTION;
 	}
 }
 
@@ -76,7 +76,7 @@ function EvaluateLUISResponse(response){
 	const secondaryQuestionThreshold = 0.1;
 	if (response != null) {
 		const luisResult = JSON.parse(response);
-		const luisResponse = new Messages.LuisResponse(luisResult.query);
+		const luisResponse = <Messages.LuisResponse>{analyzedText: luisResult.query};
 		const topResponse = luisResult.topScoringIntent;
 		//Evaluate the top scoring intent first
 		if(topResponse == null){
@@ -124,7 +124,7 @@ function handleTextAnalytics(ws, msg){
 					if(luisResponse != null){
 						console.log("Adding luis response");
 						ws.send(JSON.stringify(<Messages.IMessageData>{
-							messageType:'LUIS', 
+							messageType: Messages.LUIS_TYPE, 
 							content: utterance.content
 						}));
 					}

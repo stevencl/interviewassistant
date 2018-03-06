@@ -4,6 +4,7 @@ export interface IMessageData {
 }
 
 export const UTTERANCE_TYPE = 'UTTERANCE';
+export const LUIS_TYPE = 'LUIS';
 export interface IUtteranceContent {
     key: string;
     speaker: "interviewer" | "interviewee";
@@ -13,13 +14,9 @@ export interface IUtteranceContent {
     luisResponse: LuisResponse
 }
 
-export class LuisResponse{
+export interface LuisResponse{
 	analyzedText: string | undefined;
 	statementTypes: {[statementType: string] : string };
-	constructor(analyzedText: string){
-		this.analyzedText = analyzedText;
-		this.statementTypes = {};
-	}
 }
 
 export const INTERVIEWEE_JOINED_TYPE = 'INTERVIEWEE_JOINED';
