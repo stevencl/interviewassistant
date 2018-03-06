@@ -118,6 +118,10 @@ input[type=submit]:hover {
   padding: 20px;
 }
 
+/***********************
+ * CONVERSATION
+ ***********************/
+
 .conversation .utterance {
   width: 400px;
 }
@@ -130,4 +134,63 @@ input[type=submit]:hover {
 .conversation .utterance--interviewee {
   color: green;
   text-align: right;
+}
+
+/***********************
+ * HEADER
+ ***********************/
+
+.nav-bar {
+  height: 60px;
+  padding: 0 5%;
+  display: flex;
+
+  font-size: 15px;
+  font-family: "Segoe UI";
+  background-color: #3a8dd8;
+  color: #fff;
+  z-index: 5000;
+}
+
+.nav-bar .logo {
+  padding: 18px 20px 14px 12px;
+  width: 137px;
+  height: 96%;
+  margin-top: 1px;
+  margin-left: -12px;
+  float: left;
+}
+
+.nav-bar .logo img {
+  margin-top: -1px;
+  max-width: none;
+  width: 108px;
+  height: auto;
+}
+
+.nav-bar__links {
+  float: left;
+  flex: 1 1 auto;
+}
+
+.nav-bar__links ul {
+  padding: 0;
+  list-style: none;
+  margin-top: 0;
+  margin-bottom: 0
+}
+
+.nav-bar__links ul > li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-bar__links ul > li > a {
+  display: inline-block;
+  margin-top: 1px;
+  padding: 18px 27px 10px;
+  height: 48px;
+  text-decoration: none;
+  color: #fff;
 }
