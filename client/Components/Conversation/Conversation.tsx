@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import * as Messages from '../../lib/Common/Messages';
 
 export type ConversationProps = {
-    // interviewerMessages: string[];    
-    // intervieweeMessages: string[];
+    utterances: Messages.IUtteranceContent[];
 };
 
 type ConversationState = {
@@ -19,8 +19,17 @@ export default class Conversation extends React.Component<ConversationProps, Con
   }
 
   render() {
-    return <div>      
+    return <div className="conversation">      
         This is the conversation component
+
+        {this.props.utterances.map(utterance => {
+
+          return (
+            <div className={`utterance ${utterance.speaker === "interviewer" ? "utterance--interviewer" : "utterance--interviewee"}`}>
+              <p>{utterance.text}</p>
+            </div>
+          )
+        })}
     </div>
   };
 }

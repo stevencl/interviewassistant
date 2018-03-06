@@ -117,3 +117,17 @@ input[type=submit]:hover {
   background-color: #f2f2f2;
   padding: 20px;
 }
+
+.conversation .utterance {
+  width: 400px;
+}
+
+.conversation .utterance--interviewer {
+  color: red;
+  text-align: left;
+}
+
+.conversation .utterance--interviewee {
+  color: green;
+  text-align: right;
+}

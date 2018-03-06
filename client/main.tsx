@@ -9,19 +9,10 @@ import AwaitInterviewee from './Components/AwaitInterviewee/AwaitInterviewee';
 
 let socket: WebSocket;
 
-async function initializeSocketForInterviewer(interviewerName: string): Promise<string> {
+function initializeSocketForInterviewer(interviewerName: string): WebSocket {
   console.log('Initializing socket for interviewer');
-
-  const establishSocketAndWaitForUrl = new Promise<string>(resolve => {
-    socket = new WebSocket(`ws://localhost:3000/createSession?interviewerName=${interviewerName}`);
-    socket.onmessage = (msg) => {
-      console.log('Received URL', msg);
-      const data = JSON.parse(msg.data);
-      return resolve(data.urlForInterviewee);
-    }
-  });
-
-  return await establishSocketAndWaitForUrl;
+  socket = new WebSocket(`ws://localhost:3000/createSession?interviewerName=${interviewerName}`);
+  return socket;
 }
 
 class App extends React.Component {

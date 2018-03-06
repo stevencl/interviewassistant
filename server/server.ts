@@ -3,6 +3,7 @@ import * as ws from 'express-ws';
 import * as luis from './luis';
 import * as punctuation from './punctuation';
 import * as URL from 'url';
+import * as Messages from './Messages';
 
 function insertPhrase(db, startTime, duration, phrase: string | undefined) {
 	var text = "";
@@ -146,7 +147,7 @@ app.ws('/createSession', (interviewerWs, req) => {
 		return; 
 	}
 
-	const interviewerName = parameters["query"]!["interviewerName"];
+	const interviewerName: string = <string>parameters["query"]!["interviewerName"];
 	console.log('An interviewer is trying to create a session with name: ' + interviewerName)
 
 	if (interviewerName == null) {
@@ -161,8 +162,11 @@ app.ws('/createSession', (interviewerWs, req) => {
 
 	// Send the interviewer the session ID to give to the interviewee
 	console.log('sending interviewer the session id: ' + sessionId);
-	interviewerWs.send(JSON.stringify({
-		urlForInterviewee: `localhost:3000/#/interviewee?sessionId=${sessionId}`
+	interviewerWs.send(JSON.stringify(<Messages.IMessageData>{
+		messageType: Messages.URL_FOR_INTERVIEWEE_TYPE,
+		content: {
+			urlForInterviewee: `localhost:3000/#/interviewee?sessionId=${sessionId}`
+		}
 	}));
 
 	// Add interviewer WS to clients
@@ -200,7 +204,7 @@ app.ws('/', (ws, req) => {
 		return; 
 	}
 
-	const sessionId = parameters["query"]!["sessionId"];
+	const sessionId: string = <string>parameters["query"]!["sessionId"];
 	console.log('A client is trying to connect with sessionID: ' + sessionId)
 
 	if (sessionId == null) {
@@ -226,8 +230,9 @@ app.ws('/', (ws, req) => {
 
 	// Let the interviewer know that the interviewee has joined
 	const interviewerId = sessions[sessionId].interviewerId;
-	clients[interviewerId].send(JSON.stringify({
-		sessionData: {
+	clients[interviewerId].send(JSON.stringify(<Messages.IMessageData>{
+		messageType: Messages.INTERVIEWEE_JOINED_TYPE,
+		content: <Messages.IIntervieweeJoinedContent>{
 			interviewerName: sessions[sessionId].intervieweeName,
 			intervieweeName: sessions[sessionId].intervieweeName
 		}
@@ -237,8 +242,7 @@ app.ws('/', (ws, req) => {
 		console.log('received a message from interviewee', msg);
 		console.log('forwarding message from interviewee to interviewer');
 
-		const message = JSON.parse(msg);
-		message.messageType = 'transcript';
+		const message: Messages.IMessageData = <Messages.IMessageData>JSON.parse(msg);
 		clients[session.interviewerId].send(JSON.stringify(message));
 	});
 });
