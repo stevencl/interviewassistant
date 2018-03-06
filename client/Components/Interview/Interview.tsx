@@ -14,6 +14,7 @@ export type InterviewProps = {
 type InterviewState = {
   // A list of all the utterance keys in the order received, to be rendered
   utteranceKeys: string[];
+  interviewerTalkingPercent: number;
 }
 
 export default class Interview extends React.Component<InterviewProps, InterviewState> {
@@ -21,12 +22,15 @@ export default class Interview extends React.Component<InterviewProps, Interview
   private recorder: any = null;
   // Dictionary of utterances by their key (speaker:startTimestamp), for fast lookups
   private utterancesByKey: { [key: string]: Messages.IUtteranceContent } = {};
+  private interviewerWords: number = 0;
+  private intervieweeWords: number = 0;
 
   constructor(props) {
     super(props);
 
     this.state = {
       utteranceKeys: [],
+      interviewerTalkingPercent: 50
     };
 
     const mic = new Microphone();
@@ -45,9 +49,11 @@ export default class Interview extends React.Component<InterviewProps, Interview
           const messageContent: Messages.IUtteranceContent = message.content;
           if (messageContent) {
               this.utterancesByKey[messageContent.key] = messageContent;
+              this.intervieweeWords += messageContent.text.split(' ').length;
 
               this.setState({
-                utteranceKeys: [...this.state.utteranceKeys, messageContent.key]
+                utteranceKeys: [...this.state.utteranceKeys, messageContent.key],
+                interviewerTalkingPercent: 100 - Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
               });
           }
         } else if (message.messageType === Messages.LUIS_TYPE) {
@@ -55,6 +61,8 @@ export default class Interview extends React.Component<InterviewProps, Interview
           if (messageContent && messageContent.key && this.utterancesByKey[messageContent.key]) {
             this.utterancesByKey[messageContent.key] = messageContent;
           }
+          // Force rerender of the updated element
+          this.setState(this.state);
         } else {
           console.log('Didnt get the expected utterance message');
         }
@@ -92,6 +100,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
       text: transcript,
       startTime: startTimeText
     };
+    this.interviewerWords += transcript.split(' ').length;
 
     this.props.interviewerSocket.send(JSON.stringify(
       { 
@@ -103,7 +112,8 @@ export default class Interview extends React.Component<InterviewProps, Interview
     this.utterancesByKey[utterance.key] = utterance;
 
     this.setState({
-      utteranceKeys: [...this.state.utteranceKeys, utterance.key]
+      utteranceKeys: [...this.state.utteranceKeys, utterance.key],
+      interviewerTalkingPercent: Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
     });
   }
 

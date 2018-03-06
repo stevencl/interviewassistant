@@ -76,7 +76,7 @@ function EvaluateLUISResponse(response){
 	const secondaryQuestionThreshold = 0.1;
 	if (response != null) {
 		const luisResult = JSON.parse(response);
-		const luisResponse = <Messages.LuisResponse>{analyzedText: luisResult.query};
+		const luisResponse = <Messages.LuisResponse>{analyzedText: luisResult.query, suggestions: {}};
 		const topResponse = luisResult.topScoringIntent;
 		//Evaluate the top scoring intent first
 		if(topResponse == null){
@@ -117,10 +117,10 @@ function handleTextAnalytics(ws, msg){
 		punctuatedText.split(/[".?;]+/).forEach(sentence => {
 			console.log("Split: " + sentence);
 			if(sentence != null){
-				const response = luis.getLuisIntent(sentence, (response) => {
+				luis.getLuisIntent(sentence, (response) => {
 					const luisResponse = EvaluateLUISResponse(response);
 					console.log(luisResponse);
-					utterance.luisResponse = luisResponse;
+					utterance.content.luisResponse = luisResponse;
 					if(luisResponse != null){
 						console.log("Adding luis response");
 						ws.send(JSON.stringify(<Messages.IMessageData>{

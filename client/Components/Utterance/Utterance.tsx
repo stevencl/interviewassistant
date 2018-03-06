@@ -12,21 +12,26 @@ type UtteranceState = {
 }
 
 export default class Utterance extends React.Component<UtteranceProps, UtteranceState> {
+    private currentUtterance: Messages.IUtteranceContent;
+
     constructor(props) {
         super(props);
 
-        this.state = {
-            utterance: this.props.getUtteranceByKey(this.props.utteranceKey)
-        };
+        this.currentUtterance = this.props.getUtteranceByKey(this.props.utteranceKey);
     }
 
     shouldComponentUpdate(nextProps, nextState): boolean {
-        console.log('Seeing if utterance component should update');
         const nextUtterance = this.props.getUtteranceByKey(nextProps.utteranceKey);
-        console.log('The current utterance is: ', this.state.utterance);
-        console.log('The next utterance is :', nextUtterance);
-
+        console.log('Current utterance is ', this.currentUtterance);
+        console.log('Next utterance is ', nextUtterance);
         // TODO, check if LUIS information has been added
+        if (!this.currentUtterance.luisResponse && nextUtterance.luisResponse) {
+            console.log('COMPONENT SHOULD UPDATE');
+            this.currentUtterance = nextUtterance;
+            return true;
+        }
+
+        console.log('COMPONENT WONT UPDATE');
 
         return false;
     }
@@ -35,18 +40,20 @@ export default class Utterance extends React.Component<UtteranceProps, Utterance
     }
 
     render() {
-        return (
-            <div className={`utterance ${this.state.utterance.speaker === "interviewer" ? "utterance--interviewer" : "utterance--interviewee"}`}>
-              <p>{this.state.utterance.text}</p>
-              {/* { this.state.utterance.luisResponse ?
+        const utterance = this.props.getUtteranceByKey(this.props.utteranceKey);
+        return (            
+            <div className={`utterance ${ utterance.speaker === "interviewer" ? "utterance--interviewer" : "utterance--interviewee"}`}>
+              <p>{utterance.text}</p>
+              { utterance.luisResponse ?
                   <div className="utterance__suggestion-container">
                     <p className="utterance__suggestion-title">Suggestion</p>
-                    {this.state.utterance.luisResponse.suggestions.map(suggestion => {
-                        <p className="utterance__suggestion">{suggestion}</p>
-                    })}
+                    {Object.keys(utterance.luisResponse.suggestions).map(key => 
+                        <p className="utterance__suggestion">
+                        {utterance.luisResponse.suggestions[key]}</p>
+                    )}
                   </div> :
                   null
-              }} */}
+              }
             </div>
         )
     }

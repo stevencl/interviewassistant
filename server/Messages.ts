@@ -14,7 +14,7 @@ export interface IUtteranceContent {
     luisResponse?: LuisResponse;
 }
 
-export interface LuisResponse{
+export interface LuisResponse {
 	analyzedText: string | undefined;
 	suggestions: {[statementType: string] : string };
 }
