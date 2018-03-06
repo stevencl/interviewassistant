@@ -12,18 +12,21 @@ export type InterviewProps = {
 };
 
 type InterviewState = {
-  utterances: Messages.IUtteranceContent[];
+  // A list of all the utterance keys in the order received, to be rendered
+  utteranceKeys: string[];
 }
 
 export default class Interview extends React.Component<InterviewProps, InterviewState> {
   private microphone: Microphone;
   private recorder: any = null;
+  // Dictionary of utterances by their key (speaker:startTimestamp), for fast lookups
+  private utterancesByKey: { [key: string]: Messages.IUtteranceContent } = {};
 
   constructor(props) {
     super(props);
 
     this.state = {
-      utterances: []
+      utteranceKeys: [],
     };
 
     const mic = new Microphone();
@@ -41,9 +44,16 @@ export default class Interview extends React.Component<InterviewProps, Interview
         if (message.messageType === Messages.UTTERANCE_TYPE) {
           const messageContent: Messages.IUtteranceContent = message.content;
           if (messageContent) {
+              this.utterancesByKey[messageContent.key] = messageContent;
+
               this.setState({
-                utterances: [...this.state.utterances, messageContent]
+                utteranceKeys: [...this.state.utteranceKeys, messageContent.key]
               });
+          }
+        } else if (message.messageType === Messages.LUIS_TYPE) {
+          const messageContent: Messages.IUtteranceContent = message.content;
+          if (messageContent && messageContent.key && this.utterancesByKey[messageContent.key]) {
+            this.utterancesByKey[messageContent.key] = messageContent;
           }
         } else {
           console.log('Didnt get the expected utterance message');
@@ -73,8 +83,10 @@ export default class Interview extends React.Component<InterviewProps, Interview
     startRecording(this.recorder, this.microphone, speechToTextService.onSpeechPaused, this.handleTranscript);
   }
 
+  // Callback given to startRecording to do something after the transcription is generated for an speech utterance
   private handleTranscript = (transcript: string, startTimeText: string, endTimeText: string, duration: number) => {
     const utterance: Messages.IUtteranceContent =  {
+      key: `interviewer:${startTimeText}`,
       speaker: "interviewer",
       duration: duration,
       text: transcript,
@@ -88,9 +100,17 @@ export default class Interview extends React.Component<InterviewProps, Interview
       } as Messages.IMessageData
     ));
 
-    this.setState({ 
-      utterances: [...this.state.utterances, utterance]
+    this.utterancesByKey[utterance.key] = utterance;
+
+    this.setState({
+      utteranceKeys: [...this.state.utteranceKeys, utterance.key]
     });
+  }
+
+  // Method to get a specific utterance by its key, passed down so that the Utterance component can know whether it needs
+  // to update itself (based on analysis data from the server)
+  private getUtteranceByKey = (key: string): Messages.IUtteranceContent => {
+    return this.utterancesByKey[key];
   }
 
   render() {
@@ -98,7 +118,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
       <div>      
         This is the interview component
         {/* <Subtitles label={this.state.subtitles} /> */}
-        <Conversation utterances={this.state.utterances} />      
+        <Conversation utteranceKeys={this.state.utteranceKeys} getUtteranceByKey={this.getUtteranceByKey} />      
       </div>
     )
   };

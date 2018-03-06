@@ -20,13 +20,21 @@ class App extends React.Component {
     return (
       <HashRouter>
         <div>
-          <h1>Better Customer Conversations</h1>
-          <ul>
-            <li><NavLink to="/">Home</NavLink></li>
-            <li><NavLink to="/createSession">Create session</NavLink></li>
-            <li><NavLink to="/interviewee">Interviewee page</NavLink></li>
-            <li><NavLink to="/transcript">Transcript page</NavLink></li>
-          </ul>
+          <header role="banner" className="nav-bar">
+            <a href="https://www.microsoft.com" className="logo">
+              <img src="https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31" />
+            </a>
+
+            <nav className="nav-bar__links">
+              <ul>
+                <li><NavLink to="/">Home</NavLink></li>
+                <li><NavLink to="/createSession">Create session</NavLink></li>
+                <li><NavLink to="/interviewee">Interviewee page</NavLink></li>
+                <li><NavLink to="/transcript">Transcript page</NavLink></li>
+              </ul>
+            </nav>
+          </header>
+
           <div className="content">
             <Route path="/" component={Home} />
             <Route path="/createSession" render={(props) => (
