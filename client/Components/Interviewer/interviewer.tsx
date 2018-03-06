@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { Event, Emitter } from '../../lib/speechToText/util';
 import { Microphone } from '../../lib/Audio/audio';
 import { SpeechToTextService, SpeechPausedResult } from '../../lib/speechToText/speechService';
-import { SpectrumAnalyzer, SpectrumAnalyzerProps} from '../SpectrumAnalyzer/spectrumAnalyzer'
 
 declare const RecordRTC;
 declare const StereoAudioRecorder;
@@ -201,7 +200,7 @@ export class Interviewer extends React.Component<InterviewerProps, InterviewerSt
     this.state.microphone.stop();
   }
 
-  startTheRecording() {
+  startTheRecording(socket: WebSocket) {
     fetch('/devenv.json')
       .then(response => response.json())
       .then(({ bsKey }) => {
@@ -212,7 +211,7 @@ export class Interviewer extends React.Component<InterviewerProps, InterviewerSt
           this.setState({ ...this.state, subtitles: text });
         });
 
-        this.startRecording(speechService.onSpeechPaused);
+        this.startRecording(socket, speechService.onSpeechPaused);
       });
 
     const start = new Date();
@@ -232,11 +231,13 @@ export class Interviewer extends React.Component<InterviewerProps, InterviewerSt
     }, 1000);
   }
 
-  private startRecording(onSpeechEnded: Event<SpeechPausedResult>) {
-    const websocketName = 'ws://localhost:3000/?sessionId=' + this.state.interviewID;
-    console.log('websocketname: ' + websocketName);
-    const socket = new WebSocket(websocketName);
-    const recorder = RecordRTC(this.props.microphone.stream, {
+  private startRecording(socket: WebSocket, onSpeechEnded: Event<SpeechPausedResult>) {
+    if(socket == null){
+      const websocketName = 'ws://localhost:3000/?sessionId=' + this.state.interviewID;
+      console.log('websocketname: ' + websocketName);
+      socket = new WebSocket(websocketName);
+    }
+    const recorder = RecordRTC(this.state.microphone.stream, {
       type: 'audio',
       recorderType: StereoAudioRecorder,
       numberOfAudioChannels: 2,
@@ -287,7 +288,7 @@ export class Interviewer extends React.Component<InterviewerProps, InterviewerSt
       console.log(e);
     }
 
-    this.startTheRecording();
+    this.startTheRecording(socket);
   }
   
   render() {

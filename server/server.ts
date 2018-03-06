@@ -68,6 +68,14 @@ function handleTextAnalytics(ws, msg){
 	//insertPhrase(db, startTimeText, duration, text);
 	if (response != "") {
 		console.log(response);
+		const luisResponse = JSON.parse(response);
+		// if (luisResponse.intents != null){
+		// 	const primaryThreshold = 0.5;
+		// 	const secondaryThreshold = 0.4;
+		// 	for (const intent in luisResponse.intents){
+				
+		// 	}
+		// }
 		var message = JSON.parse(msg);
 		message.messageType = 'LUIS';
 		ws.send(JSON.stringify(message));
