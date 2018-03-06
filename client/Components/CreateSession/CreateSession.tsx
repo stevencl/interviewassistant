@@ -1,7 +1,8 @@
 import React from 'react';
+import * as Messages from '../../lib/Common/Messages';
 
 type InterviewerStartFormProps = {
-    initializeSocket: (interviewerName: string) => Promise<string>;
+    initializeSocket: (interviewerName: string) => WebSocket;
 }
 
 interface InterviewerStartFormState {
@@ -25,7 +26,25 @@ export default class CreateSession extends React.Component<InterviewerStartFormP
 
     async handleSubmit(event) {
       event.preventDefault();
-      const urlForInterviewee = await this.props.initializeSocket(this.state.name);
+      const socket = this.props.initializeSocket(this.state.name);
+
+      const waitForUrl = new Promise<string>(resolve => {
+        socket.onmessage = (msg) => {
+          console.log('Received URL', msg);
+          const message: Messages.IMessageData = JSON.parse(msg.data);
+          if (message.messageType === Messages.URL_FOR_INTERVIEWEE_TYPE) {
+            const messageContent: Messages.IUrlForIntervieweeContent = message.content;
+            if (messageContent) {
+                return resolve(messageContent.urlForInterviewee);
+            }
+          } else {
+            console.log('Didnt get the expected url for interviewee message');
+          }
+        }
+      });
+    
+      const urlForInterviewee = await waitForUrl;
+
       this.props["history"].push({
         pathname: "/awaitInterviewee",
         state: {
