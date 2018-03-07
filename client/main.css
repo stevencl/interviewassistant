@@ -118,33 +118,31 @@ input[type=submit]:hover {
 /***********************
  * CORE
  ***********************/
- body {
-   font-family: "Segoe UI";
- }
 
-/***********************
- * CONVERSATION
- ***********************/
-
-.conversation .utterance {
-  width: 400px;
+body {
+	font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
+	font-size: 0.9em;
+	margin:0;
+	padding: 0;
+	height: 100%;
 }
 
-.conversation .utterance--interviewer {
-  color: red;
-  text-align: left;
+.content {
+	margin: auto;
+	width: 95%;
 }
 
-.conversation .utterance--interviewee {
-  color: green;
-  text-align: right;
+@media screen and (min-width: 810px) {
+  .content {
+  	width: 800px;
+  }
 }
 
 /***********************
  * HEADER
  ***********************/
 
-.nav-bar {
+ .nav-bar {
   height: 60px;
   padding: 0 5%;
   display: flex;
@@ -157,19 +155,14 @@ input[type=submit]:hover {
 }
 
 .nav-bar .logo {
-  padding: 18px 20px 14px 12px;
-  width: 137px;
-  height: 96%;
-  margin-top: 1px;
+  padding-top: 3px;
   margin-left: -12px;
   float: left;
 }
 
 .nav-bar .logo img {
-  margin-top: -1px;
   max-width: none;
-  width: 108px;
-  height: auto;
+  height: 50px;
 }
 
 .nav-bar__links {
@@ -197,4 +190,160 @@ input[type=submit]:hover {
   height: 48px;
   text-decoration: none;
   color: #fff;
+}
+
+/***********************
+ * CONVERSATION
+ ***********************/
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-bottom: 40px;
+}
+
+.conversation .utterance {
+  display: block;
+  position: relative;
+  margin-top: 5px;
+  color: white;
+}
+
+.conversation .utterance > * {
+  padding: 9px;
+}
+
+.conversation .utterance p {
+  margin: 0;
+}
+
+.conversation .utterance.utterance--interviewer {
+  align-self: flex-start;
+  background-color: #464646;
+}
+
+.conversation .utterance.utterance--interviewee {
+  align-self: flex-end;
+  background-color: #008272;
+}
+
+@media screen and (max-width: 670px) {
+  .conversation .utterance {
+	  width: 90%;
+  }
+}
+
+@media screen and (min-width: 670px) {  
+  .conversation .utterance {
+	  width: 47%;
+  }
+}
+
+.conversation .utterance__suggestion-container {
+  color: black;
+  background: #FFFFCC;
+}
+
+.conversation .utterance__suggestion-title {
+  font-weight: 800;
+}
+
+/***********************
+* SPEAKING AMOUNT
+***********************/
+
+.speaking-amount {
+  height: 15px;
+  margin: 10px 0 10px 0;
+  background-color : #008272;
+}
+
+.speaking-amount__value {
+  margin: 0;
+  background-color: #464646;
+  float: left;
+  height: 100%;
+}
+
+
+/***********************
+* CONVERSATION DASHBOARD
+***********************/
+.conversation-dashboard {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 10px;
+}
+
+@media screen and (min-width: 810px) {
+  .conversation-dashboard {
+    justify-content: space-around;
+  }
+}
+
+/***********************
+* PROFILE
+***********************/
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.profile__name {
+  text-align: center;
+  margin: 5px;
+  font-weight: bold;
+  width: 100px;
+  overflow: hidden;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.profile__photo-frame {
+  width: 60px;
+  height: 60px;
+  border-radius: 60px;
+  overflow: hidden;
+}
+
+.profile__photo-frame img {
+  width: 60px;
+  margin: auto;
+}
+
+/***********************
+* TIMER
+***********************/
+
+.controls-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.timer-container {
+  text-align: center;
+}
+
+.timer-container .timer {
+  color: #333333;
+  font-size: 2.5em;
+  font-weight: 600;
+}
+
+.controls-container button {
+  font-size: 1.1em;
+  width: 110px;
+  height: 45px;
+  background-color: #0078D7;
+  color: white;
+  border-style: solid;
+  border: 0;
 }

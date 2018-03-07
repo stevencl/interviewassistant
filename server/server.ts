@@ -232,7 +232,7 @@ app.ws('/', (ws, req) => {
 	clients[interviewerId].send(JSON.stringify(<Messages.IMessageData>{
 		messageType: Messages.INTERVIEWEE_JOINED_TYPE,
 		content: <Messages.IIntervieweeJoinedContent>{
-			interviewerName: sessions[sessionId].intervieweeName,
+			interviewerName: sessions[sessionId].interviewerName,
 			intervieweeName: sessions[sessionId].intervieweeName
 		}
 	}));

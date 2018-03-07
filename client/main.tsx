@@ -22,14 +22,13 @@ class App extends React.Component {
         <div>
           <header role="banner" className="nav-bar">
             <a href="https://www.microsoft.com" className="logo">
-              <img src="https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31" />
+              <img src="images/ms-small.png" />
             </a>
 
             <nav className="nav-bar__links">
               <ul>
                 <li><NavLink to="/">Home</NavLink></li>
                 <li><NavLink to="/createSession">Create session</NavLink></li>
-                <li><NavLink to="/interviewee">Interviewee page</NavLink></li>
                 <li><NavLink to="/transcript">Transcript page</NavLink></li>
               </ul>
             </nav>
@@ -45,7 +44,7 @@ class App extends React.Component {
             )} />
             <Route path="/interviewee" component={Interviewee} />
             <Route path="/awaitInterviewee" render={(props) => (
-              <AwaitInterviewee {...props} urlForInterviewee={""} name={""} socket={socket} />
+              <AwaitInterviewee {...props} socket={socket} />
             )} />
           </div>
         </div>

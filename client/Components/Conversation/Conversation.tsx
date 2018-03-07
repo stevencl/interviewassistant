@@ -19,8 +19,6 @@ export default class Conversation extends React.Component<ConversationProps, Con
 
   render() {
     return <div className="conversation">      
-        This is the conversation component
-
         {this.props.utteranceKeys.map(key => {
           return <Utterance key={key} utteranceKey={key} getUtteranceByKey={this.props.getUtteranceByKey} />
         })}

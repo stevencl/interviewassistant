@@ -6,6 +6,7 @@ import { SpeechToTextService, SpeechPausedResult } from '../../lib/speechToText/
 import { initializeSpeechToText, startRecording } from '../../lib/speechToText/speechCommon';
 import Conversation from '../Conversation/Conversation';
 import SpeakingAmount from '../SpeakingAmount/SpeakingAmount';
+import ConversationDashboard from '../ConversationDashboard/ConversationDashboard';
 import * as Messages from '../../lib/Common/Messages';
  
 export type InterviewProps = {
@@ -25,6 +26,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
   private utterancesByKey: { [key: string]: Messages.IUtteranceContent } = {};
   private interviewerWords: number = 0;
   private intervieweeWords: number = 0;
+  private conversationDashboardComponent: ConversationDashboard;
 
   constructor(props) {
     super(props);
@@ -71,6 +73,10 @@ export default class Interview extends React.Component<InterviewProps, Interview
     });
   }
 
+  componentDidMount() {
+    this.conversationDashboardComponent.timer.startTimer();
+  }
+
   componentWillUnmount() {
     console.log('Stopping microphone...');
     if (this.microphone) {
@@ -79,6 +85,10 @@ export default class Interview extends React.Component<InterviewProps, Interview
     
     if (this.recorder) {
       this.recorder.stopRecording();
+    }
+
+    if (this.conversationDashboardComponent && this.conversationDashboardComponent.timer) {
+      this.conversationDashboardComponent.timer.stopTimer();
     }
   }
 
@@ -120,8 +130,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
   render() {
     return (
       <div>      
-        This is the interview component
-        {/* <Subtitles label={this.state.subtitles} /> */}
+        <ConversationDashboard ref={ instance => { this.conversationDashboardComponent = instance }} interviewerName={ this.props["location"]["state"].interviewerName } intervieweeName="Marlette" />
         <SpeakingAmount interviewerSpeakingAmount={this.state.interviewerSpeakingPercent} />
         <Conversation utteranceKeys={this.state.utteranceKeys} getUtteranceByKey={this.getUtteranceByKey} />      
       </div>

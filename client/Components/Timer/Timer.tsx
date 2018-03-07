@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 
 declare const moment;
 
-export class Timer extends React.Component<any, any> {
+export default class Timer extends React.Component<any, any> {
     private timerInterval: NodeJS.Timer;
 
     startTimer() {
         const start = new Date();
-        setInterval(() => {
+        this.timerInterval = setInterval(() => {
           const millis = new Date().getTime() - start.getTime();
           const duration = moment.duration(millis, 'ms');
     
@@ -21,10 +21,10 @@ export class Timer extends React.Component<any, any> {
           minutes = mins < 10 ? `0${mins}` : mins;
     
           (this.refs.timer as HTMLElement).textContent = `${minutes}:${seconds}`;
-        }, 1000);
+        }, 500);
     }
 
-    stopTimer() {
+    stopTimer = () => {
         clearInterval(this.timerInterval);
     }
 
@@ -33,6 +33,13 @@ export class Timer extends React.Component<any, any> {
     }
 
     render() {
-        return <span ref="timer" style={{ float: "right" }} ></span>
+        return (
+            <div className="controls-container">
+               <div className="timer-container">
+                    <span className="timer" ref="timer" style={{ }} ></span>
+               </div> 
+               <button onClick={this.stopTimer} className="timer__start-timer">Stop</button>
+            </div>
+        )
     }
 }

@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom';
 import * as Messages from '../../lib/Common/Messages';
 
 export type AwaitIntervieweeProps = {
-    urlForInterviewee: string;
     socket: WebSocket;
-    name: string;
 };
 
 export default class AwaitInterviewee extends React.Component<AwaitIntervieweeProps, any> {
