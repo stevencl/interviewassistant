@@ -17,10 +17,10 @@ export function startRecording(recorder: any, microphone: Microphone, onSpeechEn
     recorder = RecordRTC(microphone.stream, {
         type: 'audio',
         recorderType: StereoAudioRecorder,
-        numberOfAudioChannels: 2,
-        desiredSampRate: 46 * 1000,
-        bitsPerSecond: 8000000, // 1 gb/s
-        disableLogs: true
+        numberOfAudioChannels: 1,
+        sampleRate: 96000,
+        bitsPerSecond: 8000000000, // 1 gb/s
+        disableLogs: false
     });
 
     let startTime = new Date().getTime();
