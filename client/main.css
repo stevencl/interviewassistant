@@ -138,6 +138,17 @@ body {
   }
 }
 
+
+button {
+  font-size: 1.1em;
+  width: 110px;
+  height: 45px;
+  background-color: #0078D7;
+  color: white;
+  border-style: solid;
+  border: 0;
+}
+
 /***********************
  * HEADER
  ***********************/
@@ -338,12 +349,51 @@ body {
   font-weight: 600;
 }
 
-.controls-container button {
+
+/***********************
+* AWAIT INTERVIEWEE
+***********************/
+
+.await-interviewee {
+  text-align: center;
+}
+
+/***********************
+* INTERVIEWEE
+***********************/
+
+.interviewee {
+  text-align: center;
+}
+
+.interviewee__header {
+  font-size: 2em;
+  font-weight: 700;
+  margin-bottom: 100px;
+}
+
+.interviewee__instructions {
+  margin-top: 100px;
   font-size: 1.1em;
-  width: 110px;
-  height: 45px;
-  background-color: #0078D7;
-  color: white;
-  border-style: solid;
-  border: 0;
+  font-weight: 500;
+}
+
+.interviewee__privacy {
+  font-size: 0.8em;
+  font-weight: 400;
+}
+
+.interviewee  .profile__name {
+  width: 200px;
+  font-size: 1.3em;
+}
+
+.interviewee  .profile__photo-frame {
+  width: 120px;
+  height: 120px;
+  border-radius: 120px;
+}
+
+.interviewee .profile__photo-frame img {
+  width: 120px;
 }

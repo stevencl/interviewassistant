@@ -27,6 +27,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
   private interviewerWords: number = 0;
   private intervieweeWords: number = 0;
   private conversationDashboardComponent: ConversationDashboard;
+  private dummyMessagesEnd: HTMLDivElement;
 
   constructor(props) {
     super(props);
@@ -75,6 +76,10 @@ export default class Interview extends React.Component<InterviewProps, Interview
 
   componentDidMount() {
     this.conversationDashboardComponent.timer.startTimer();
+  }
+
+  componentDidUpdate() {
+    this.dummyMessagesEnd.scrollIntoView({ behavior: "smooth" });
   }
 
   componentWillUnmount() {
@@ -133,6 +138,9 @@ export default class Interview extends React.Component<InterviewProps, Interview
         <ConversationDashboard ref={ instance => { this.conversationDashboardComponent = instance }} interviewerName={ this.props["location"]["state"].interviewerName } intervieweeName="Marlette" />
         <SpeakingAmount interviewerSpeakingAmount={this.state.interviewerSpeakingPercent} />
         <Conversation utteranceKeys={this.state.utteranceKeys} getUtteranceByKey={this.getUtteranceByKey} />      
+        <div style={{ float: "left", clear: "both" }}
+             ref={(el) => { this.dummyMessagesEnd = el; }}>
+        </div>
       </div>
     )
   };

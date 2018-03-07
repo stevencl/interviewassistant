@@ -6,6 +6,7 @@ import { SpeechToTextService, SpeechPausedResult } from '../../lib/speechToText/
 import { initializeSpeechToText, startRecording } from '../../lib/speechToText/speechCommon';
 import queryString from 'query-string';
 import * as Messages from '../../lib/Common/Messages';
+import Profile from '../Profile/Profile';
 
 declare const RecordRTC;
 declare const StereoAudioRecorder;
@@ -96,8 +97,20 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
   }
 
   render() {
-    return <div>      
-      This is the interviewee component
+    return <div className="interviewee">      
+        <p className="interviewee__header">
+          You are now connected and your responses are being transcribed
+        </p>
+
+        <Profile name="Alana" speaker="interviewee" />
+
+        <p className="interviewee__instructions">
+          Please do not close this browser window until instructed
+        </p>
+
+        <p className="interviewee__privacy">
+          To learn more about how we use your data, please review our <a href="#">Privacy Policy</a>
+        </p>
     </div>
   };
 }

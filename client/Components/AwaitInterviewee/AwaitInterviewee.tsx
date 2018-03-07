@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as Messages from '../../lib/Common/Messages';
+import Profile from '../Profile/Profile';
 
 export type AwaitIntervieweeProps = {
     socket: WebSocket;
@@ -32,14 +33,23 @@ export default class AwaitInterviewee extends React.Component<AwaitIntervieweePr
   }
 
   render() {
-    return <div>      
-      This is the awaiting interviewee Component
-      <div>
+    return <div className="await-interviewee">      
+      <Profile name={ this.props["location"]["state"].name } speaker="interviewer" />
+
+      <p className="await-interviewee__instructions">To get started, send your participant the following link: </p>
+
+      <p className="await-interviewee__link">
         { this.props["location"]["state"].urlForInterviewee }
-      </div>
-      <div>
-        { this.props["location"]["state"].name }
-      </div>
+      </p>
+
+      <button className="await-interviewee_copy">
+        Copy
+      </button>
+
+      <p className="await-interviewee_instructions--additional">
+        Once the participant opens the link in their browser, the session will start and your responses will be analyzed.
+      </p>
+
     </div>
   };
 }
