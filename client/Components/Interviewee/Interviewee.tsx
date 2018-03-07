@@ -90,7 +90,7 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
           return;
       }
 
-      this.socket = new WebSocket(`ws://localhost:3000/?sessionId=${sessionId}`);
+      this.socket = new WebSocket(`wss://${window.location.host}/?sessionId=${sessionId}`);
       this.socket.addEventListener('open', (e) => {
           console.log('Interviewee Websocket is open');
       });

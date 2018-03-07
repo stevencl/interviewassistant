@@ -166,12 +166,13 @@ app.ws('/createSession', (interviewerWs, req) => {
 	const session = new Session(sessionId, interviewerId, interviewerName);
 	sessions[sessionId] = session;
 
+	console.log(interviewerWs.readyState);
 	// Send the interviewer the session ID to give to the interviewee
 	console.log('sending interviewer the session id: ' + sessionId);
 	interviewerWs.send(JSON.stringify(<Messages.IMessageData>{
 		messageType: Messages.URL_FOR_INTERVIEWEE_TYPE,
 		content: {
-			urlForInterviewee: `localhost:3000/#/interviewee?sessionId=${sessionId}`
+			urlForInterviewee: `${req.headers.host}/#/interviewee?sessionId=${sessionId}`
 		}
 	}));
 
@@ -251,7 +252,7 @@ app.ws('/', (ws, req) => {
 	});
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
 	console.log('Web server running in http://localhost:' + PORT);
