@@ -196,11 +196,22 @@ button {
 
 .nav-bar__links ul > li > a {
   display: inline-block;
+  position: relative;
   margin-top: 1px;
-  padding: 18px 27px 10px;
-  height: 48px;
+  padding: 18px 27px 0px;
   text-decoration: none;
   color: #fff;
+  height: 42px;
+}
+
+.nav-bar__links ul > li a:hover::before {
+  width: calc(100% - 52px);
+  display: block;
+  position: absolute;
+  bottom: 18px;
+  background: currentColor;
+  content: "";
+  height: 2px;
 }
 
 /***********************
