@@ -56,14 +56,14 @@ export default class CreateSession extends React.Component<InterviewerStartFormP
 
     render() {
       return (
-        <form className="flex-container" onSubmit={this.handleSubmit}>
-            <div className="flex-item" >
-            <label>
+        <form className="create-session" onSubmit={this.handleSubmit}>
+            <div >
+            <label htmlFor="name">
                 Name:
-                <input name="name" type="text" value={this.state.name} onChange={this.handleChange} />
             </label>
+            <input placeholder="Interviewer name" name="name" type="text" value={this.state.name} onChange={this.handleChange} />
           </div>
-          <input className="flex-item" type="submit" value="Create Interview Session" />
+          <input className="create-session__button" type="submit" value="Create Interview Session" />
         </form>
       );
     }

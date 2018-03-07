@@ -84,40 +84,14 @@ canvas {
   font-weight: normal;
 }
 
-input[type=text], select {
-  /*width: 33%;*/
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-input[type=submit] {
-    /*width: 33%;*/
-  background-color: rgb(78, 76, 175);
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-input[type=submit]:hover {
-  background-color: #45a049;
-}
-
-.inputdiv {
-  border-radius: 5px;
-  background-color: #f2f2f2;
-  padding: 20px;
-}
 
 /***********************
  * CORE
  ***********************/
+
+* {
+  box-sizing: border-box;
+}
 
 body {
 	font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
@@ -208,7 +182,7 @@ button {
   width: calc(100% - 52px);
   display: block;
   position: absolute;
-  bottom: 18px;
+  bottom: 0;
   background: currentColor;
   content: "";
   height: 2px;
@@ -223,6 +197,12 @@ button {
   flex-direction: column;
   justify-content: flex-end;
   margin-bottom: 40px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.conversation::-webkit-scrollbar {
+  display: none;
 }
 
 .conversation .utterance {
@@ -407,4 +387,46 @@ button {
 
 .interviewee .profile__photo-frame img {
   width: 120px;
+}
+
+
+/***********************
+* CREATE SESSION
+***********************/
+.create-session {
+  padding-top: 30px;
+  max-width: 412px;
+  min-width: 320px;
+  width: calc(100% - 40px);
+  margin: auto;
+  margin-bottom: 28px;
+  background-color: #fff;
+}
+
+input[type=text], select {
+  width: 100%;
+  padding: 6px 10px;
+  border-width: 1px;
+  border-color: rgba(0,0,0,.6);
+  height: 36px;
+  outline: none;
+  display: block;
+  font-size: 15px;
+}
+
+.create-session__button {
+  height: 36px;
+  width: 100%;
+  padding: 4px 12px 4px 12px;
+  text-align: center;
+  border-color: #0067b8;
+  background-color: #0067b8;
+  color: #fff;
+  margin: 10px 0;
+  border: none;
+}
+
+.create-session__button:hover {
+  background-color: #005da6;
+  border-color: #004e8c;
 }
