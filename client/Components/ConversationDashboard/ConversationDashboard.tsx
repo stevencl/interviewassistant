@@ -24,9 +24,11 @@ export default class ConversationDashboard extends React.Component<ConversationD
     render() {
         return (
             <div className="conversation-dashboard">
-                <Profile name={this.props.interviewerName} speaker="interviewer" />
-                <Timer ref={ instance => { this.timer = instance}} />
-                <Profile name={this.props.intervieweeName} speaker="interviewee" />
+                <div className="conversation-dashboard__content">
+                    <Profile name={this.props.interviewerName} speaker="interviewer" />
+                    <Timer ref={ instance => { this.timer = instance}} />
+                    <Profile name={this.props.intervieweeName} speaker="interviewee" />
+                </div>
             </div>
         )
     }

@@ -36,7 +36,6 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
 }
 
 canvas {
@@ -98,12 +97,12 @@ body {
 	font-size: 0.9em;
 	margin:0;
 	padding: 0;
-	height: 100%;
 }
 
 .content {
 	margin: auto;
-	width: 95%;
+  width: 95%;
+  margin-top: 80px;
 }
 
 @media screen and (min-width: 810px) {
@@ -132,11 +131,18 @@ button {
   padding: 0 5%;
   display: flex;
 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
   font-size: 15px;
   font-family: "Segoe UI";
   background-color: #3a8dd8;
   color: #fff;
   z-index: 5000;
+
+  overflow: hidden;
 }
 
 .nav-bar .logo {
@@ -197,8 +203,6 @@ button {
   flex-direction: column;
   justify-content: flex-end;
   margin-bottom: 40px;
-  overflow-x: hidden;
-  overflow-y: scroll;
 }
 
 .conversation::-webkit-scrollbar {
@@ -256,8 +260,23 @@ button {
 ***********************/
 
 .speaking-amount {
+  position: fixed;
+  top: 160px;
+  left: 0;
+  z-index: 998;
+
   height: 15px;
-  margin: 10px 0 10px 0;
+  width: 100%;
+  padding-top: 20px;
+  padding-bottom: 30px;
+
+  background-color: #fff;
+}
+
+.speaking-amount__content {
+  width: 100%;
+  height: 15px;
+  margin: auto;
   background-color : #008272;
 }
 
@@ -268,22 +287,40 @@ button {
   height: 100%;
 }
 
+@media screen and (min-width: 810px) {
+  .speaking-amount__content {
+    width: 800px;
+  }
+}
+
 
 /***********************
 * CONVERSATION DASHBOARD
 ***********************/
 .conversation-dashboard {
+  /* better to not fix this and have the conversations overflow scroll, taking up remainder of vertical height */
+  position: fixed;
+  top: 50px;
+  left: 0;
+  background: white;
+  padding: 10px 0;
+  z-index: 999;
+  width: 100%;  
+}
+
+.conversation-dashboard__content {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: flex-start;
   width: 100%;
-  margin-top: 10px;
+  margin: auto;
+  justify-content: space-around;
 }
 
 @media screen and (min-width: 810px) {
-  .conversation-dashboard {
-    justify-content: space-around;
+  .conversation-dashboard__content {
+    width: 800px;
   }
 }
 
@@ -429,4 +466,24 @@ input[type=text], select {
 .create-session__button:hover {
   background-color: #005da6;
   border-color: #004e8c;
+}
+
+/***********************
+ * INTERVIEW
+***********************/
+.interview {
+  margin-top: 210px;
+}
+
+.rotate {
+  animation: rotation 2s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+      -webkit-transform: rotate(0deg);
+  }
+  to {
+      -webkit-transform: rotate(359deg);
+  }
 }
