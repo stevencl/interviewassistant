@@ -11,7 +11,7 @@ let socket: WebSocket;
 
 function initializeSocketForInterviewer(interviewerName: string): WebSocket {
   console.log('Initializing socket for interviewer');
-  socket = new WebSocket(`wss://${window.location.host}/createSession?interviewerName=${interviewerName}`);
+  socket = new WebSocket(`ws://${window.location.host}/createSession?interviewerName=${interviewerName}`);
   return socket;
 }
 

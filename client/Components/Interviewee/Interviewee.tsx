@@ -10,7 +10,7 @@ import Profile from '../Profile/Profile';
 
 declare const RecordRTC;
 declare const StereoAudioRecorder;
- 
+
 export type IntervieweeProps = {
     microphone: Microphone,
     socket: WebSocket;
@@ -49,7 +49,7 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
     if (this.microphone) {
       this.microphone.stop();
     }
-    
+
     if (this.recorder) {
       this.recorder.stopRecording();
     }
@@ -74,7 +74,7 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
     };
 
     this.socket.send(JSON.stringify(
-      { 
+      {
         messageType: Messages.UTTERANCE_TYPE,
         content: utterance
       } as Messages.IMessageData
@@ -90,14 +90,14 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
           return;
       }
 
-      this.socket = new WebSocket(`wss://${window.location.host}/?sessionId=${sessionId}`);
+      this.socket = new WebSocket(`ws://${window.location.host}/?sessionId=${sessionId}`);
       this.socket.addEventListener('open', (e) => {
           console.log('Interviewee Websocket is open');
       });
   }
 
   render() {
-    return <div className="interviewee">      
+    return <div className="interviewee">
         <p className="interviewee__header">
           You are now connected and your responses are being transcribed
         </p>
@@ -114,4 +114,4 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
     </div>
   };
 }
-  
+

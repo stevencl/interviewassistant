@@ -107,8 +107,8 @@ function EvaluateLUISResponse(response) {
 		//Evaluate secondary intents if there are any
 		if (luisResult.intents != null) {
 			for (const intent of luisResult.intents) {
-				if (intent.intent == topResponse.intent) { 
-					continue; 
+				if (intent.intent == topResponse.intent) {
+					continue;
 				} //Ignore top response in these checks
 				if (intent.score > secondaryThreshold && intent.intent != "None") {
 					luisResponse.suggestions.push(getSuggestion(intent.intent));
@@ -131,7 +131,7 @@ function handleTextAnalytics(ws, punctuatedUtterance: Messages.IMessageData){
 				    punctuatedUtterance.content.luisResponse = luisResponse;
 					console.log("Adding luis response");
 					ws.send(JSON.stringify(<Messages.IMessageData>{
-						messageType: Messages.LUIS_TYPE, 
+						messageType: Messages.LUIS_TYPE,
 						content: punctuatedUtterance.content
 					}));
 				}
@@ -150,7 +150,7 @@ app.ws('/createSession', (interviewerWs, req) => {
 	if (parameters == null || parameters["query"] == null) {
 		console.log('Invalid parameters, returning');
 		ws.close();
-		return; 
+		return;
 	}
 
 	const interviewerName: string = <string>parameters["query"]!["interviewerName"];
@@ -172,7 +172,7 @@ app.ws('/createSession', (interviewerWs, req) => {
 	interviewerWs.send(JSON.stringify(<Messages.IMessageData>{
 		messageType: Messages.URL_FOR_INTERVIEWEE_TYPE,
 		content: {
-			urlForInterviewee: `https://${req.headers.host}/#/interviewee?sessionId=${sessionId}`
+			urlForInterviewee: `http://${req.headers.host}/#/interviewee?sessionId=${sessionId}`
 		}
 	}));
 
@@ -201,7 +201,7 @@ app.ws('/', (ws, req) => {
 	if (parameters == null || parameters["query"] == null) {
 		console.log('Invalid parameters, returning');
 		ws.close();
-		return; 
+		return;
 	}
 
 	const sessionId: string = <string>parameters["query"]!["sessionId"];
