@@ -18,8 +18,8 @@ export function startRecording(recorder: any, microphone: Microphone, onSpeechEn
         type: 'audio',
         recorderType: StereoAudioRecorder,
         numberOfAudioChannels: 1,
-        sampleRate: 96000,
-        bitsPerSecond: 8000000000, // 1 gb/s
+        sampleRate: 48000,
+        bitsPerSecond: 320000, // 320kb/s
         disableLogs: false
     });
 
@@ -39,6 +39,7 @@ export function startRecording(recorder: any, microphone: Microphone, onSpeechEn
                 const transcript = result.text;
                 handleTranscript(transcript, startTimeText, endTimeText, durationSpeech);
             }
+            recorder.save('test.wav');
         });
 
         startTime = new Date().getTime();
