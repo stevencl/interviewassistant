@@ -34,7 +34,7 @@ function generateGUID() {
 
 
 const app = express();
-const expressWs = ws(app);
+ws(app);
 
 app.use(express.static(__dirname + '/..'));
 
