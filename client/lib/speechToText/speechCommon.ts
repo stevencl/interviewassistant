@@ -39,8 +39,6 @@ export function startRecording(recorder: any, microphone: Microphone, onSpeechEn
                 const transcript = result.text;
                 handleTranscript(transcript, startTimeText, endTimeText, durationSpeech);
             }
-
-            recorder.save('test.wav');
         });
 
         startTime = new Date().getTime();
