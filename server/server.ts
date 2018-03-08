@@ -172,7 +172,7 @@ app.ws('/createSession', (interviewerWs, req) => {
 	interviewerWs.send(JSON.stringify(<Messages.IMessageData>{
 		messageType: Messages.URL_FOR_INTERVIEWEE_TYPE,
 		content: {
-			urlForInterviewee: `${req.headers.host}/#/interviewee?sessionId=${sessionId}`
+			urlForInterviewee: `https://${req.headers.host}/#/interviewee?sessionId=${sessionId}`
 		}
 	}));
 
