@@ -16,6 +16,17 @@ function RecognizerSetup(subscriptionKey): Speech.Recognizer {
 	var authentication = new Speech.CognitiveSubscriptionKeyAuthentication(subscriptionKey);
 
 	return Speech.CreateRecognizer(recognizerConfig, authentication);
+
+	//If we are able to install the opus codec, this is how we would use it:
+	// return Speech.CreateRecognizerWithCustomAudioSource(recognizerConfig, authentication, 
+	// 	new Speech.MicAudioSource(
+	// 			 new Speech.OpusRecorder(
+	// 			 {
+	// 				 mimeType: "audio/ogg",
+	// 				 bitsPerSecond: 32000
+	// 			 }
+	// 	  )
+	//   )); 
 }
 
 export class SpeechPausedResult {
