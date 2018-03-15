@@ -57,7 +57,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
 
               this.setState({
                 utteranceKeys: [...this.state.utteranceKeys, messageContent.key],
-                interviewerSpeakingPercent: 100 - Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
+                interviewerSpeakingPercent: Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
               });
           }
         } else if (message.messageType === Messages.LUIS_TYPE) {
@@ -135,7 +135,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
   render() {
     return (
       <div className="interview">      
-        <ConversationDashboard ref={ instance => { this.conversationDashboardComponent = instance }} interviewerName={ this.props["location"]["state"].interviewerName } intervieweeName="Marlette" />
+        <ConversationDashboard ref={ instance => { this.conversationDashboardComponent = instance }} interviewerName={ this.props["location"]["state"].interviewerName } intervieweeName="Jill" />
         <SpeakingAmount interviewerSpeakingAmount={this.state.interviewerSpeakingPercent} />
         <Conversation utteranceKeys={this.state.utteranceKeys} getUtteranceByKey={this.getUtteranceByKey} />      
         <div style={{ float: "left", clear: "both" }}
