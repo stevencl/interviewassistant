@@ -18,7 +18,7 @@ export function addPunctuation(utterance, callback) {
         }
     }
 
-    let translateResponse = "";
+    let translateResponse = utterance;
 
     request.post(options,
         function (err,
@@ -26,11 +26,19 @@ export function addPunctuation(utterance, callback) {
             if (err)
                 console.log(err);
             else {
-                console.log("Got a response from translator: ")
-                console.log(body[0].trueText.text);
-                translateResponse = body[0].trueText.text;
+                console.log("Got a response from translator: ");
+                if (body !== undefined) {
+                    console.log(body);
+                    if (body[0] !== undefined) {
+                        console.log(body[0].trueText.text);
+                        translateResponse = body[0].trueText.text;
+                    }
                 }
-                return callback(translateResponse);
-            });
+                else if (response !== undefined) {
+                    console.log("No body, got response instead: " + response);
+                }
+            }
+            return callback(translateResponse);
+        });
 
 }

@@ -94,6 +94,10 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
       this.socket.addEventListener('open', (e) => {
           console.log('Interviewee Websocket is open');
       });
+
+      this.socket.addEventListener('error', (error) =>  {
+        console.log('WebSocket Error ' + error);
+      });
   }
 
   render() {

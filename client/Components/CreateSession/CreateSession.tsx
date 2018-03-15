@@ -28,6 +28,10 @@ export default class CreateSession extends React.Component<InterviewerStartFormP
       event.preventDefault();
       const socket = this.props.initializeSocket(this.state.name);
 
+      socket.onerror = (error) => {
+          console.log(error);
+      }
+
       const waitForUrl = new Promise<string>(resolve => {
         socket.onmessage = (msg) => {
           console.log('Received URL', msg);
