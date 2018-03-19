@@ -440,7 +440,7 @@ button {
   width: calc(100% - 40px);
   margin: auto;
   margin-bottom: 28px;
-  background-color: #fff;
+  background-color: #f2f2f2;
 }
 
 input[type=text], select {
@@ -459,8 +459,8 @@ input[type=text], select {
   width: 100%;
   padding: 4px 12px 4px 12px;
   text-align: center;
-  border-color: #0067b8;
-  background-color: #0067b8;
+  border-color: #4F519D;
+  background-color: #4F519D;
   color: #fff;
   margin: 10px 0;
   border: none;
