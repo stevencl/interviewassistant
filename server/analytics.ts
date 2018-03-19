@@ -22,6 +22,7 @@ function detectClosedQuestion(sentence) {
     if (splitSentence && splitSentence.length == 2) {
         const list = closedQuestionReference[splitSentence[0].toLowerCase()];
         if (list && list.indexOf(splitSentence[1].toLowerCase()) > -1) {
+            console.log("Detected closed question" + sentence);
             return true;
         }
     }
@@ -69,12 +70,24 @@ function isQuestion(text) {
 
 function getSuggestion(intent) {
     switch (intent) {
-        case Suggestions.CLOSED_QUESTION_RESPONSE:
+        case Suggestions.CLOSED_QUESTION:
             return Suggestions.CLOSED_QUESTION_SUGGESTION;
-        case Suggestions.LEADING_QUESTION_RESPONSE:
+        case Suggestions.LEADING_QUESTION:
             return Suggestions.LEADING_QUESTION_SUGGESTION;
-        case Suggestions.JTBD_RESPONSE:
+        case Suggestions.JTBD_HOW:
+        case Suggestions.JTBD_HOWMUCH:
+        case Suggestions.JTBD_WHEN:
+        case Suggestions.JTBD_WHERE:
+        case Suggestions.JTBD_WHOWHAT:
+        case Suggestions.JTBD_WHY:
             return Suggestions.JTBD_SUGGESTION;
+        case Suggestions.PROBLEM_HOW:
+        case Suggestions.PROBLEM_HOWMUCH:
+        case Suggestions.PROBLEM_WHEN:
+        case Suggestions.PROBLEM_WHERE:
+        case Suggestions.PROBLEM_WHY:
+        case Suggestions.PROBLEM_WHOWHAT:
+            return Suggestions.PROBLEM_SUGGESTION;
         default:
             return Suggestions.DEFAULT_SUGGESTION;
     }
@@ -97,9 +110,14 @@ function EvaluateLUISResponse(response) {
             return null;
         }
 
-        if (topResponse.intent == Suggestions.CLOSED_QUESTION_RESPONSE && isClosedQuestion) {
-            luisResponse.suggestions.push(getSuggestion(topResponse.intent));
-        } else if (topResponse.score > primaryThreshold && topResponse.intent != "None") {
+        if (topResponse.intent == Suggestions.CLOSED_QUESTION) {
+            // Ignore score if top intent is closed question and instead check for the prefix.
+            if (isClosedQuestion) {
+                luisResponse.suggestions.push(getSuggestion(topResponse.intent));
+            } else {
+                return null;
+            }
+        } else if (topResponse.score > primaryThreshold && topResponse.intent != Suggestions.NONE && topResponse.intent != Suggestions.COMMUNICATION_CONFIRM) {
             // Significant top response.
             luisResponse.suggestions.push(getSuggestion(topResponse.intent));
         } else {

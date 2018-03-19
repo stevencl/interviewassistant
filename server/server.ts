@@ -94,7 +94,9 @@ app.ws('/createSession', (interviewerWs, req) => {
             const text = utterance.content.text;
             //Send punctuated text back to the front end to display first
             punctuation.addPunctuation(text, (punctuatedText) => {
-                utterance.content.text = punctuatedText;
+                if (punctuatedText) {
+                    utterance.content.text = punctuatedText;
+                }
                 interviewerWs.send(JSON.stringify(utterance));
                 Analytics.handleTextAnalytics(interviewerWs, utterance);
             });
