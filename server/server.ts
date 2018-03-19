@@ -1,10 +1,9 @@
 import * as express from 'express';
 import * as ws from 'express-ws';
-import * as luis from './luis';
 import * as punctuation from './punctuation';
 import * as URL from 'url';
 import * as Messages from './Messages';
-import * as Suggestions from './suggestions';
+import * as Analytics from './analytics';
 
 //function insertPhrase(db, startTime, duration, phrase: string | undefined) {
 //	var text = "";
@@ -48,97 +47,6 @@ app.use(express.static(__dirname + '/..'));
 //		console.log("error opening", err);
 //	});
 //}
-
-function getSuggestion(intent){
-	switch(intent){
-		case Suggestions.CLOSED_QUESTION_RESPONSE:
-			return Suggestions.CLOSED_QUESTION_SUGGESTION;
-		case Suggestions.LEADING_QUESTION_RESPONSE:
-			return Suggestions.LEADING_QUESTION_SUGGESTION;
-		case Suggestions.JTBD_RESPONSE:
-			return Suggestions.JTBD_SUGGESTION;
-		default:
-			return Suggestions.DEFAULT_SUGGESTION;
-	}
-}
-
-type intent = {
-    intent: string;
-    score: number;
-}
-
-type luisJSON = {
-    query: string;
-    intents: intent[];
-    topScoringIntent: intent;
-}
-
-function isQuestion(text) {
-    if (text[text.length - 1] === "?") {
-        return true;
-    }
-    return false;
-}
-
-function EvaluateLUISResponse(response) {
-	if (response != null) {
-        let luisResult: luisJSON = JSON.parse(response);
-        if (luisResult.query == null) {
-            return;
-        }
-		const luisResponse = <Messages.LuisResponse>{analyzedText: luisResult.query, suggestions: []};
-        const topResponse = luisResult.topScoringIntent;
-        const primaryThreshold = isQuestion(luisResult.query) ? Suggestions.PRIMARY_QUESTION_SUGGESTION_THRESHOLD : Suggestions.PRIMARY_SUGGESTION_THRESHOLD;
-        const secondaryThreshold = isQuestion(luisResult.query) ? Suggestions.SECONDARY_QUESTION_SUGGESTION_THRESHOLD : Suggestions.SECONDARY_SUGGESTION_THRESHOLD;
-		//Evaluate the top scoring intent first
-		if (topResponse == null) {
-			//No significant response
-			return null;
-		}
-
-		if (topResponse.score > primaryThreshold && topResponse.intent != "None") {
-			// Significant top response.
-			luisResponse.suggestions.push(getSuggestion(topResponse.intent));
-		} else {
-			// No significant response
-			return null;
-		}
-
-		//Evaluate secondary intents if there are any
-		if (luisResult.intents != null) {
-			for (const intent of luisResult.intents) {
-				if (intent.intent == topResponse.intent) { 
-					continue; 
-				} //Ignore top response in these checks
-				if (intent.score > secondaryThreshold && intent.intent != "None") {
-					luisResponse.suggestions.push(getSuggestion(intent.intent));
-				}
-			}
-		}
-		return luisResponse;
-	}
-}
-
-function handleTextAnalytics(ws, punctuatedUtterance: Messages.IMessageData){
-	console.log("Received " + punctuatedUtterance + "from addPunct");
-	punctuatedUtterance.content.text.split(/[".?;]+/).forEach(sentence => {
-		console.log("Split: " + sentence);
-		if(sentence != null){
-			luis.getLuisIntent(sentence, (response) => {
-				const luisResponse = EvaluateLUISResponse(response);
-				console.log(luisResponse);
-                if (luisResponse != null) {
-				    punctuatedUtterance.content.luisResponse = luisResponse;
-					console.log("Adding luis response");
-					ws.send(JSON.stringify(<Messages.IMessageData>{
-						messageType: Messages.LUIS_TYPE, 
-						content: punctuatedUtterance.content
-					}));
-				}
-			});
-		}
-	});
-}
 
 const sessions: { [sessionId: string]: Session } = {};
 const clients: { [clientId: string]: WebSocket } = {};
@@ -188,7 +96,7 @@ app.ws('/createSession', (interviewerWs, req) => {
             punctuation.addPunctuation(text, (punctuatedText) => {
                 utterance.content.text = punctuatedText;
                 interviewerWs.send(JSON.stringify(utterance));
-                handleTextAnalytics(interviewerWs, utterance);
+                Analytics.handleTextAnalytics(interviewerWs, utterance);
             });
         }
 	});
