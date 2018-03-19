@@ -135,7 +135,7 @@ export default class Interview extends React.Component<InterviewProps, Interview
   render() {
     return (
       <div className="interview">      
-        <ConversationDashboard ref={ instance => { this.conversationDashboardComponent = instance }} interviewerName={ this.props["location"]["state"].interviewerName } intervieweeName="Jill" />
+        <ConversationDashboard ref={ instance => { this.conversationDashboardComponent = instance }} interviewerName={ this.props["location"]["state"].interviewerName } intervieweeName="John" />
         <SpeakingAmount interviewerSpeakingAmount={this.state.interviewerSpeakingPercent} />
         <Conversation utteranceKeys={this.state.utteranceKeys} getUtteranceByKey={this.getUtteranceByKey} />      
         <div style={{ float: "left", clear: "both" }}

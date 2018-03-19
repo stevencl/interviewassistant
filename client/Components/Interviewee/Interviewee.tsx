@@ -106,7 +106,7 @@ export default class Interviewee extends React.Component<IntervieweeProps, Inter
           You are now connected and your responses are being transcribed
         </p>
 
-        <Profile name="Jill" speaker="interviewee" />
+        <Profile name="John" speaker="interviewee" />
 
         <p className="interviewee__instructions">
           Please do not close this browser window until instructed

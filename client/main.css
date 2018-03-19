@@ -280,12 +280,12 @@ button {
   width: 100%;
   height: 15px;
   margin: auto;
-  background-color : #008272;
+  background-color : #D23A60;
 }
 
 .speaking-amount__value {
   margin: 0;
-  background-color: #464646;
+  background-color: #54A88D;
   float: left;
   height: 100%;
 }

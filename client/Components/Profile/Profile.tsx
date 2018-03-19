@@ -6,7 +6,7 @@ export default function Profile(props: { name: string, speaker: "interviewer" | 
         <div className="profile">
             <div className="profile__name">{ props.name }</div>
             <div className="profile__photo-frame">
-                <img src={ props.speaker === "interviewer" ? "images/gosling.png" : "images/mackenzie.png" }/>
+                <img src={ props.speaker === "interviewer" ? "images/interviewer.jpg" : "images/interviewee.jpg" }/>
             </div>
         </div>
     );
