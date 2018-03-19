@@ -36,6 +36,7 @@
 html, body {
   margin: 0;
   padding: 0;
+  background-color: #f2f2f2
 }
 
 canvas {
@@ -111,12 +112,13 @@ body {
   }
 }
 
-
+/* backgroundcolor was #0078D7;
+*/
 button {
   font-size: 1.1em;
   width: 110px;
   height: 45px;
-  background-color: #0078D7;
+  background-color:#4F519D; 
   color: white;
   border-style: solid;
   border: 0;
@@ -124,6 +126,7 @@ button {
 
 /***********************
  * HEADER
+ * background-color was #3a8dd8;
  ***********************/
 
  .nav-bar {
@@ -138,7 +141,7 @@ button {
 
   font-size: 15px;
   font-family: "Segoe UI";
-  background-color: #3a8dd8;
+  background-color: #4F519D; 
   color: #fff;
   z-index: 5000;
 
@@ -226,12 +229,12 @@ button {
 
 .conversation .utterance.utterance--interviewer {
   align-self: flex-start;
-  background-color: #464646;
+  background-color: #54A88D;
 }
 
 .conversation .utterance.utterance--interviewee {
   align-self: flex-end;
-  background-color: #008272;
+  background-color: #D23A60;
 }
 
 @media screen and (max-width: 670px) {
@@ -248,7 +251,7 @@ button {
 
 .conversation .utterance__suggestion-container {
   color: black;
-  background: #FFFFCC;
+  background: #FFECAF;
 }
 
 .conversation .utterance__suggestion-title {
@@ -270,7 +273,7 @@ button {
   padding-top: 20px;
   padding-bottom: 30px;
 
-  background-color: #fff;
+  background-color: #f2f2f2;
 }
 
 .speaking-amount__content {
@@ -302,7 +305,7 @@ button {
   position: fixed;
   top: 50px;
   left: 0;
-  background: white;
+  background: #f2f2f2;
   padding: 10px 0;
   z-index: 999;
   width: 100%;  
