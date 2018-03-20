@@ -118,6 +118,10 @@ export default class Interview extends React.Component<InterviewProps, Interview
     };
     this.interviewerWords += transcript.split(' ').length;
 
+    this.setState({
+      interviewerSpeakingPercent: Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
+    });
+
     this.props.interviewerSocket.send(JSON.stringify(
       { 
         messageType: Messages.UTTERANCE_TYPE,
