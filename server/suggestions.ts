@@ -15,7 +15,7 @@ export const JTBD_WHERE = "JTBD_Where";
 export const JTBD_WHY = "JTBD_Why";
 export const JTBD_WHEN = "JTBD_When";
 export const JTBD_WHOWHAT = "JTBD_Who/What";
-export const JTBD_SUGGESTION = "This is a JTBD. Ask for more details.";
+export const JTBD_SUGGESTION = "This is a Job-To-Be-Done. Ask: \"If you get better what will you gain?\""; 
 
 // Guidance on problems
 export const PROBLEM_HOW = "Problem_How";
