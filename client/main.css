@@ -288,6 +288,7 @@ button {
   background-color: #54A88D;
   float: left;
   height: 100%;
+  transition: width 2s;
 }
 
 @media screen and (min-width: 810px) {

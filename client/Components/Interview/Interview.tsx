@@ -53,7 +53,13 @@ export default class Interview extends React.Component<InterviewProps, Interview
           const messageContent: Messages.IUtteranceContent = message.content;
           if (messageContent) {
               this.utterancesByKey[messageContent.key] = messageContent;
-              this.intervieweeWords += messageContent.text.split(' ').length;
+              const wordsInUtterance = messageContent.text.split(' ').length;
+
+              if (messageContent.speaker === "interviewer") {
+                this.interviewerWords += wordsInUtterance;
+              } else {
+                this.intervieweeWords += wordsInUtterance;
+              }
 
               this.setState({
                 utteranceKeys: [...this.state.utteranceKeys, messageContent.key],
@@ -116,11 +122,6 @@ export default class Interview extends React.Component<InterviewProps, Interview
       text: transcript,
       startTime: startTimeText
     };
-    this.interviewerWords += transcript.split(' ').length;
-
-    this.setState({
-      interviewerSpeakingPercent: Math.round(this.interviewerWords * 100 / (this.interviewerWords + this.intervieweeWords))
-    });
 
     this.props.interviewerSocket.send(JSON.stringify(
       { 
